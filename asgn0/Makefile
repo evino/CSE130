@@ -1,5 +1,6 @@
 CC = clang
-CFLAGS = -Wall
+CFLAGS = -Wall -Wextra -Werror -Wpedantic
+LDFLAGS = -lm
 
 all: hello
 
