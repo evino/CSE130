@@ -4,11 +4,13 @@
 #include <fcntl.h>
 
 #define MAX_LEN 64
+#define BUFF_LEN 1024
 
 int main() {
     char commandBuffer[MAX_LEN] = "";
     char command[MAX_LEN] = "";
     char file[MAX_LEN] = "";
+    char buffer[BUFF_LEN];
     read(0, commandBuffer, 32);
     sscanf(commandBuffer, "%s %s", command, file);
     int fd = open(file, O_RDWR);
@@ -19,7 +21,8 @@ int main() {
             return 1;
         }
 
-
+        //read(fd, buffer, strlen(buffer));
+        write(1, buffer, read(fd, buffer, strlen(buffer)));
 
         //printf("%s\n", file);
 
