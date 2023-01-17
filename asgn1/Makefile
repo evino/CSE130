@@ -1,6 +1,7 @@
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -Wpedantic
 LDFLAGS = -lm
+MEMCHECK = valgrind --leak-check=full
 
 all: memory
 
@@ -12,3 +13,6 @@ clean:
 
 format:
 	clang-format -i -style=file memory.c
+
+memCheck:
+	$(MEMCHECK) ./memory
