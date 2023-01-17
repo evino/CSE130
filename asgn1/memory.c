@@ -18,7 +18,11 @@ int main() {
             write(2, "Invalid Command\n", strlen("Invalid Command\n"));
             return 1;
         }
-        printf("%s\n", file);
+
+
+
+        //printf("%s\n", file);
+
     } else if (strcmp(command, "set") == 0) {
         printf("set\n");
     } else {
