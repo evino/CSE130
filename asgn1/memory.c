@@ -33,7 +33,7 @@ int main() {
             write(1, buffer, bytes);
         }
 
-        close(fd);  // This was moved up
+        close(fd); // This was moved up
 
         if (bytes == -1) { // If write fails
             write(2, "Operation Failed\n", strlen("Operation Failed\n"));
