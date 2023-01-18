@@ -20,7 +20,7 @@ int main() {
     }
 
     if (strcmp(command, "get") == 0) {
-        int fd = open(file, O_RDWR);
+        int fd = open(file, O_RDONLY);
         if (fd == -1) { // Invalid File
             write(2, "Invalid Command\n", strlen("Invalid Command\n"));
             return 1;
