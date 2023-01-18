@@ -46,7 +46,18 @@ int main() {
         }
 
     } else if (strcmp(command, "set") == 0) {
-        printf("set\n");
+        //if (fd == -1) {
+        //fd = open(file, S_IRWXU | O_RDWR | O_TRUNC | O_CREAT);
+        fd = open(file, O_CREAT | O_TRUNC | O_WRONLY, 00007);
+       // while (bytes > 0 && writeVal > -1) {
+        while (bytes != -1 && writeVal != -1) {
+            bytes = read(0, buffer, 4096);
+            writeVal = write(fd, buffer, bytes);
+        }
+       
+
+            return 0;
+       //}
     } else {
         write(2, "Invalid Command\n", strlen("Invalid Command\n"));
         return 1;
