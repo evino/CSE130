@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -Wall -Wextra -Werror -Wpedantic -g
+CFLAGS = -Wall -Wextra -Werror -Wpedantic
 LDFLAGS = -lm
 MEMCHECK = valgrind --leak-check=full
 
