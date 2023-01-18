@@ -1,12 +1,12 @@
 CC = clang
-CFLAGS = -Wall -Wextra -Werror -Wpedantic
+CFLAGS = -Wall -Wextra -Werror -Wpedantic -g
 LDFLAGS = -lm
 MEMCHECK = valgrind --leak-check=full
 
 all: memory
 
 memory: memory.o
-	$(CC) $(LDFLAGS) -o memory memory.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o memory memory.o
 
 clean:
 	rm -f memory memory.o
