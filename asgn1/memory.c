@@ -19,7 +19,7 @@ int main() {
     }
     sscanf(buffer, "%s %s", command, file);
 
-    int fd = open(file, O_RDWR);
+    int fd = open(file, O_RDWR, 0777);
 
     if (strlen(file) > PATH_MAX) { // File name len exceed
         write(2, "Invalid Command\n", strlen("Invalid Command\n"));
@@ -48,16 +48,15 @@ int main() {
     } else if (strcmp(command, "set") == 0) {
         //if (fd == -1) {
         //fd = open(file, S_IRWXU | O_RDWR | O_TRUNC | O_CREAT);
-        fd = open(file, O_CREAT | O_TRUNC | O_WRONLY, 00007);
-       // while (bytes > 0 && writeVal > -1) {
-        while (bytes != -1 && writeVal != -1) {
+        fd = open(file, O_CREAT | O_TRUNC | O_WRONLY, 0777);
+        // while (bytes > 0 && writeVal > -1) {
+        while (bytes != -1 || writeVal != -1) {
             bytes = read(0, buffer, 4096);
             writeVal = write(fd, buffer, bytes);
         }
-       
 
-            return 0;
-       //}
+        return 0;
+        //}
     } else {
         write(2, "Invalid Command\n", strlen("Invalid Command\n"));
         return 1;
