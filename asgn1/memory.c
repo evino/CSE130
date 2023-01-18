@@ -12,6 +12,11 @@ int main() {
     char file[MAX_LEN] = "";
 
     ssize_t bytes = read(0, buffer, MAX_LEN);
+    ssize_t writeVal;
+    if (bytes == -1) {
+        write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+        return 1;
+    }
     sscanf(buffer, "%s %s", command, file);
 
     int fd = open(file, O_RDWR);
@@ -28,14 +33,14 @@ int main() {
         }
 
         // SWITCH TO USE ONE BUFFER
-        while (bytes > 0) {
+        while (bytes > 0 && writeVal > -1) {
             bytes = read(fd, buffer, 4096);
-            write(1, buffer, bytes);
+            writeVal = write(1, buffer, bytes);
         }
 
         close(fd); // This was moved up
 
-        if (bytes == -1) { // If write fails
+        if (bytes == -1 || writeVal == -1) { // If write fails
             write(2, "Operation Failed\n", strlen("Operation Failed\n"));
             return 1;
         }
