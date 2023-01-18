@@ -14,13 +14,14 @@ int main() {
     ssize_t bytes = read(0, buffer, MAX_LEN);
     sscanf(buffer, "%s %s", command, file);
 
+    int fd = open(file, O_RDWR);
+
     if (strlen(file) > PATH_MAX) { // File name len exceed
         write(2, "Invalid Command\n", strlen("Invalid Command\n"));
         return 1;
     }
 
     if (strcmp(command, "get") == 0) {
-        int fd = open(file, O_RDONLY);
         if (fd == -1) { // Invalid File
             write(2, "Invalid Command\n", strlen("Invalid Command\n"));
             return 1;
