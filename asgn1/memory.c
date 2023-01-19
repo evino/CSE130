@@ -21,7 +21,11 @@ int main() {
 
     sscanf(buffer, "%s %s", command, file);
 
+    int in_fd;  // fd for which std to 
+    int out_fd; // fd 
+    if (strcmp(command, "get") == 0) {
 
+    }
     int fd = open(file, O_RDWR);
 
     bytes_read = 0;
