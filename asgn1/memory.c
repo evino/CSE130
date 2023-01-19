@@ -4,22 +4,52 @@
 #include <fcntl.h>
 #include <limits.h>
 
-#define MAX_LEN 8192
+#define BUFFER_SIZE 4096
 
 int main() {
-    char buffer[MAX_LEN] = "";
-    char command[MAX_LEN] = "";
-    char file[MAX_LEN] = "";
+    char buffer[BUFFER_SIZE]; // Might need to initialize to silence valgrind error
+    char command[3] = "";
+    char file[BUFFER_SIZE] = "";
 
-    ssize_t bytes = read(0, buffer, MAX_LEN);
-    ssize_t writeVal;
-    if (bytes == -1) {
+    int bytes_read = read(0, buffer, BUFFER_SIZE);
+
+
+    if (bytes_read == -1) {
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
+
     sscanf(buffer, "%s %s", command, file);
 
+
     int fd = open(file, O_RDWR);
+
+    bytes_read = 0;
+
+    do {
+        bytes_read = read(fd, buffer, BUFFER_SIZE);
+
+        if (bytes_read < 0) {
+            write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+            return 1;
+        } else if (bytes_read > 0) {
+            ssize_t bytes_written = 0;
+            do {
+                ssize_t bytes = write()
+            }
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+    /*
 
     if (strlen(file) > PATH_MAX) { // File name len exceed
         write(2, "Invalid Command\n", strlen("Invalid Command\n"));
@@ -33,14 +63,14 @@ int main() {
         }
 
         // SWITCH TO USE ONE BUFFER
-        while (bytes > 0 && writeVal > -1) {
-            bytes = read(fd, buffer, 4096);
-            writeVal = write(1, buffer, bytes);
+        while (bytes_read > 0 && writeVal > -1) {
+            bytes_read = read(fd, buffer, 4096);
+            writeVal = write(1, buffer, bytes_read);
         }
 
         close(fd); // This was moved up
 
-        if (bytes == -1 || writeVal == -1) { // If write fails
+        if (bytes_read == -1 || writeVal == -1) { // If write fails
             write(2, "Operation Failed\n", strlen("Operation Failed\n"));
             return 1;
         }
@@ -49,10 +79,10 @@ int main() {
         //if (fd == -1) {
         //fd = open(file, S_IRWXU | O_RDWR | O_TRUNC | O_CREAT);
         fd = open(file, O_CREAT | O_TRUNC | O_WRONLY, 0777);
-        // while (bytes > 0 && writeVal > -1) {
-        while (bytes >= 0) {
-            bytes = read(0, buffer, 4096);
-            writeVal = write(fd, buffer, bytes);
+        // while (bytes_read > 0 && writeVal > -1) {
+        while (bytes_read >= 0) {
+            bytes_read = read(0, buffer, 4096);
+            writeVal = write(fd, buffer, bytes_read);
         }
 
         return 0;
@@ -63,3 +93,4 @@ int main() {
     }
     return 0;
 }
+*/
