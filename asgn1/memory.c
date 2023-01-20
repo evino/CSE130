@@ -17,12 +17,26 @@ int main() {
     // char *invalid = "Invalid Command\n";
 
     // read command and file from STDIN
-    int bytes_read = read(0, buffer, BUFFER_SIZE);
+    // Can read one byte at a time, and loop till there is a newline (in buffer)
+   // int bytes_read = read(0, buffer, BUFFER_SIZE);
+   int bytes_read = 0;
+   int i = 0;
+
+	int byte_count = 0;
+   	do {
+		bytes_read = read(0, buffer + byte_count, 1);
+		printf("%s : ", buffer);
+		printf("%d\n", i); i++; // DB
+		byte_count++;
+   	} while (bytes_read > 0 && strstr(buffer, "\n") == NULL);
+	// printf("%s\n", s);
 
     if (bytes_read == -1) {
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
+
+	printf("%s\n", buffer);
 
     // Split command and file up into tokens
     const char *delim1 = " ";
@@ -31,11 +45,11 @@ int main() {
     char *file = strtok(NULL, delim2);
 
     if (file == NULL) {
-        return invalid();
-    }
+       return invalid();
+   }
 
     if (strstr(file, " ") != NULL || strstr(file, "\n") != NULL) {
-        return invalid();
+		return invalid();
         //printf("innit\n");
     }
 
