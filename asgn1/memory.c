@@ -62,16 +62,42 @@ int main() {
         invalid();
         //write(2, invalid, strlen(invalid));
         //return 1;
+	} else if (write_fd == 1 && fd > -1) {
+		read_fd = fd;
     } else if (read_fd == 0) { // If command is "set"
         // if (unlink())
         // open(file, O_RDWR | O_TRUNC | O_CREAT, 0777);
         //close(fd);
-        fd = creat(file, 0777);
-        if (fd == -1) {  // Make sure creat worked
+        write_fd = creat(file, 0777);
+        if (write_fd == -1) {  // Make sure creat worked
 			write(2, "Operation Failed\n", strlen("Operation Failed\n"));
             return 1;
         }
     }
+
+
+	bytes_read = 0;
+	do {
+		bytes_read = read(read_fd, buffer, BUFFER_SIZE);
+
+		if (bytes_read < 0) {
+			write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+			return 1;
+		} else if (bytes_read > 0) {
+			int bytes_written = 0;
+			do {
+				int bytes = write(write_fd, buffer + bytes_written, bytes_read - bytes_written);
+
+				if (bytes <= 0) {
+					write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+					return 1;
+				}
+
+				bytes_written += bytes;
+	
+			} while (bytes_written < bytes_read);
+		}
+	} while (bytes_read > 0);
 
     //printf("%d", read_fd);
     return 0;
