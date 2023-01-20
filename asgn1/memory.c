@@ -8,10 +8,19 @@
 
 int main() {
     char buffer[BUFFER_SIZE]; // Might need to initialize to silence valgrind error
+
     char command[3] = "";
-    char file[BUFFER_SIZE] = "";
+    //char file[BUFFER_SIZE] = "";
 
     int bytes_read = read(0, buffer, BUFFER_SIZE);
+    const char *delim1 = " ";
+    const char *delim2 = " \n";
+    char *token = strtok(buffer, delim1);
+    printf("%s\n", token);
+    token = strtok(NULL, delim2);
+    printf("%s\n", token);
+    //strcmp()
+
 
 
     if (bytes_read == -1) {
@@ -19,16 +28,20 @@ int main() {
         return 1;
     }
 
-    sscanf(buffer, "%s %s", command, file);
+    // sscanf(buffer, "%s %s", command, file);
 
-    int in_fd;  // fd for which std to 
-    int out_fd; // fd 
+    //int in_fd;  // fd for which std to 
+    //int out_fd; // fd 
     if (strcmp(command, "get") == 0) {
 
     }
-    int fd = open(file, O_RDWR);
+   // int fd = open(file, O_RDWR);
 
+}
+
+    /*
     bytes_read = 0;
+
 
     do {
         bytes_read = read(fd, buffer, BUFFER_SIZE);
@@ -38,14 +51,15 @@ int main() {
             return 1;
         } else if (bytes_read > 0) {
             ssize_t bytes_written = 0;
-            do {
-                ssize_t bytes = write()
-            }
+
+           // do {
+           //     ssize_t bytes = write()
+           // }
         }
     }
 
 }
-
+*/
 
 
 
