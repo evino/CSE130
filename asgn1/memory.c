@@ -29,7 +29,6 @@ int main() {
     const char *delim2 = "\n";
     char *command = strtok(buffer, delim1);
     char *file = strtok(NULL, delim2);
-    printf("%s\n", file);
 
     if (file == NULL) {
         return invalid();
@@ -39,7 +38,6 @@ int main() {
         return invalid();
         //printf("innit\n");
     }
-
 
     // If file is blank
     // if (strcmp(file, "") == 0) {
@@ -117,7 +115,7 @@ int main() {
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
-    
+
     return 0;
 }
 
