@@ -12,7 +12,7 @@ int invalid() {
 }
 
 int main() {
-    char buffer[BUFFER_SIZE]; // Might need to initialize to silence valgrind error
+    char buffer[BUFFER_SIZE] = ""; // Might need to initialize to silence valgrind error
 
     // char *invalid = "Invalid Command\n";
 
@@ -35,8 +35,8 @@ int main() {
         //printf("innit\n");
     }
 
-    int write_fd = 999;
-    int read_fd = 999;
+    int write_fd;
+    int read_fd;
     if (strcmp("get", command) == 0) {
         write_fd = 1;
     } else if (strcmp("set", command) == 0) {
@@ -59,7 +59,7 @@ int main() {
     // Make sure file is closed
     int fd = open(file, O_RDWR);
     if (fd == -1 && write_fd == 1) { // File does not exist
-        invalid();
+        return invalid();
         //write(2, invalid, strlen(invalid));
         //return 1;
     } else if (write_fd == 1 && fd > -1) {
@@ -102,6 +102,11 @@ int main() {
 
     // MAKE SURE TO CLOSE PROPER FILES, AND CHECK IT!!!
 
+    if (close(fd) == -1) {
+        write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+        return 1;
+    }
+    
     return 0;
 }
 
