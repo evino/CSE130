@@ -100,6 +100,9 @@ int main() {
 	} while (bytes_read > 0);
 
     //printf("%d", read_fd);
+
+	// MAKE SURE TO CLOSE PROPER FILES, AND CHECK IT!!!
+
     return 0;
 }
 
