@@ -9,18 +9,37 @@
 int main() {
     char buffer[BUFFER_SIZE]; // Might need to initialize to silence valgrind error
 
-    char command[3] = "";
-    //char file[BUFFER_SIZE] = "";
+    char *invalid = "Invalid Command\n";
 
+
+    // read command and file from STDIN
     int bytes_read = read(0, buffer, BUFFER_SIZE);
+
+    if (bytes_read == -1) {
+        write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+        return 1;
+    }
+
+    // Split command and file up into tokens
     const char *delim1 = " ";
     const char *delim2 = " \n";
-    char *token = strtok(buffer, delim1);
-    printf("%s\n", token);
-    token = strtok(NULL, delim2);
-    printf("%s\n", token);
-    //strcmp()
+    char *command = strtok(buffer, delim1);
+    char *file = strtok(NULL, delim2);
 
+    
+    if (strcmp("get", command) == 0) {
+        int write_fd = 1;
+    } else if(strcmp("set", command) == 0) {
+        int read_fd = 0;
+    } else {
+        write(2, invalid, strlen(invalid));
+        return 1;
+    }
+
+    if (strlen(file) > PATH_MAX) {
+        write(2, invalid, strlen(invalid));
+        return 1;
+    }
 
 
     if (bytes_read == -1) {
@@ -28,7 +47,6 @@ int main() {
         return 1;
     }
 
-    // sscanf(buffer, "%s %s", command, file);
 
     //int in_fd;  // fd for which std to 
     //int out_fd; // fd 
