@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <limits.h>
 
-
 #define BUFFER_SIZE 4096
 
 int invalid() {
@@ -16,7 +15,6 @@ int main() {
     char buffer[BUFFER_SIZE]; // Might need to initialize to silence valgrind error
 
     // char *invalid = "Invalid Command\n";
-
 
     // read command and file from STDIN
     int bytes_read = read(0, buffer, BUFFER_SIZE);
@@ -41,18 +39,17 @@ int main() {
     int read_fd;
     if (strcmp("get", command) == 0) {
         write_fd = 1;
-    } else if(strcmp("set", command) == 0) {
+    } else if (strcmp("set", command) == 0) {
         read_fd = 0;
     } else {
         return invalid();
-       // write(2, invalid, strlen(invalid));
-       // return 1;
+        // write(2, invalid, strlen(invalid));
+        // return 1;
     }
 
     if (strlen(file) > PATH_MAX) {
         return invalid();
     }
-
 
     if (bytes_read == -1) {
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
@@ -72,7 +69,7 @@ int main() {
     return 0;
 }
 
-    /*
+/*
     bytes_read = 0;
 
 
@@ -94,13 +91,7 @@ int main() {
 }
 */
 
-
-
-
-
-
-
-    /*
+/*
 
     if (strlen(file) > PATH_MAX) { // File name len exceed
         write(2, "Invalid Command\n", strlen("Invalid Command\n"));
