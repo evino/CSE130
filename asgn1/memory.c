@@ -30,7 +30,7 @@ int main() {
     char *command = strtok(buffer, delim1);
     char *file = strtok(NULL, delim2);
 
-    if (strstr(file, " ") != NULL) {
+    if (strstr(file, " ") != NULL || strstr(file, "\n") != NULL) {
         return invalid();
         //printf("innit\n");
     }
@@ -56,13 +56,21 @@ int main() {
         return 1;
     }
 
+    // Make sure file is closed
     int fd = open(file, O_RDWR);
-    if (fd == -1 && write_fd == 1) {
+    if (fd == -1 && write_fd == 1) { // File does not exist
         invalid();
         //write(2, invalid, strlen(invalid));
         //return 1;
-    } else if (read_fd == 0) {
-        open(file, O_RDWR | O_TRUNC | O_CREAT);
+    } else if (read_fd == 0) { // If command is "set"
+        // if (unlink())
+        // open(file, O_RDWR | O_TRUNC | O_CREAT, 0777);
+        //close(fd);
+        fd = creat(file, 0777);
+        if (fd == -1) {  // Make sure creat worked
+			write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+            return 1;
+        }
     }
 
     //printf("%d", read_fd);
