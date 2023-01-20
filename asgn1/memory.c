@@ -4,12 +4,18 @@
 #include <fcntl.h>
 #include <limits.h>
 
+
 #define BUFFER_SIZE 4096
+
+int invalid() {
+    write(2, "Invalid Command\n", strlen("Invalid Command\n"));
+    return 1;
+}
 
 int main() {
     char buffer[BUFFER_SIZE]; // Might need to initialize to silence valgrind error
 
-    char *invalid = "Invalid Command\n";
+    // char *invalid = "Invalid Command\n";
 
 
     // read command and file from STDIN
@@ -22,23 +28,29 @@ int main() {
 
     // Split command and file up into tokens
     const char *delim1 = " ";
-    const char *delim2 = " \n";
+    const char *delim2 = "\n";
     char *command = strtok(buffer, delim1);
     char *file = strtok(NULL, delim2);
 
-    
+    if (strstr(file, " ") != NULL) {
+        return invalid();
+        //printf("innit\n");
+    }
+
+    int write_fd;
+    int read_fd;
     if (strcmp("get", command) == 0) {
-        int write_fd = 1;
+        write_fd = 1;
     } else if(strcmp("set", command) == 0) {
-        int read_fd = 0;
+        read_fd = 0;
     } else {
-        write(2, invalid, strlen(invalid));
-        return 1;
+        return invalid();
+       // write(2, invalid, strlen(invalid));
+       // return 1;
     }
 
     if (strlen(file) > PATH_MAX) {
-        write(2, invalid, strlen(invalid));
-        return 1;
+        return invalid();
     }
 
 
@@ -47,14 +59,17 @@ int main() {
         return 1;
     }
 
-
-    //int in_fd;  // fd for which std to 
-    //int out_fd; // fd 
-    if (strcmp(command, "get") == 0) {
-
+    int fd = open(file, O_RDWR);
+    if (fd == -1 && write_fd == 1) {
+        invalid();
+        //write(2, invalid, strlen(invalid));
+        //return 1;
+    } else if (read_fd == 0) {
+        open(file, O_RDWR | O_TRUNC | O_CREAT);
     }
-   // int fd = open(file, O_RDWR);
 
+    //printf("%d", read_fd);
+    return 0;
 }
 
     /*
