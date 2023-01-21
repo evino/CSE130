@@ -18,24 +18,19 @@ int main() {
 
     // read command and file from STDIN
     // Can read one byte at a time, and loop till there is a newline (in buffer)
-   // int bytes_read = read(0, buffer, BUFFER_SIZE);
-   int bytes_read = 0;
-//    int i = 0;
+    // int bytes_read = read(0, buffer, BUFFER_SIZE);
+    int bytes_read = 0;
 
-	int byte_count = 0;
-   	do {
-		bytes_read = read(0, buffer + byte_count, 1);
-		// printf("%s : ", buffer);
-		// printf("%d\n", i); i++; // DB
-		byte_count++;
-   	} while (bytes_read > 0 && strstr(buffer, "\n") == NULL);
-	// printf("%s\n", s);
+    int byte_count = 0;
+    do {
+        bytes_read = read(0, buffer + byte_count, 1);
+        byte_count++;
+    } while (bytes_read > 0 && strstr(buffer, "\n") == NULL);
 
-    if (bytes_read == -1) {
+    if (bytes_read == -1) {  // Make sure read didn't fail
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
-
 
     // Split command and file up into tokens
     const char *delim1 = " ";
@@ -43,13 +38,14 @@ int main() {
     char *command = strtok(buffer, delim1);
     char *file = strtok(NULL, delim2);
 
+    // Make sure some location was passed in
     if (file == NULL) {
-       return invalid();
-   }
+        return invalid();
+    }
 
+    // Make sure location name is valid
     if (strstr(file, " ") != NULL || strstr(file, "\n") != NULL) {
-		return invalid();
-        //printf("innit\n");
+        return invalid();
     }
 
     // If file is blank
@@ -73,6 +69,7 @@ int main() {
         return invalid();
     }
 
+    printf("%d\n", bytes_read);
     if (bytes_read == -1) {
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
@@ -88,9 +85,12 @@ int main() {
         read_fd = fd;
     } else if (read_fd == 0) { // If command is "set"
         // if (unlink())
-        // open(file, O_RDWR | O_TRUNC | O_CREAT, 0777);
+        // open(file, O_CREAT O_RDWR | O_TRUNC, 0777);
         //close(fd);
-        write_fd = creat(file, 0777);
+        //write_fd = creat(file, 0777);
+        write_fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0777);
+        printf("right before check\n");
+        printf("write_fd: %d\n", write_fd);
         if (write_fd == -1) { // Make sure creat worked
             write(2, "Operation Failed\n", strlen("Operation Failed\n"));
             return 1;
@@ -124,8 +124,8 @@ int main() {
 
     // MAKE SURE TO CLOSE PROPER FILES, AND CHECK IT!!!
 
-    if (close(fd) == -1) {
-        write(2, "Operation Failed\n", strlen("Operation Failed\n"));
+    if (close(fd) == -1) {  // THIS IF IS CAUSING THE FAIL WHEN CALLING SET ON NEW FILE
+        write(2, "HERE: Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
 
