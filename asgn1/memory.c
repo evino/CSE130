@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define BUFFER_SIZE 4096
 
@@ -45,6 +47,12 @@ int main() {
 
     // Make sure location name is valid
     if (strstr(file, " ") != NULL || strstr(file, "\n") != NULL) {
+        return invalid();
+    }
+
+    struct stat fileCheck;
+    stat(file, &fileCheck);
+    if (S_ISDIR(fileCheck.st_mode) != 0) { // File is a directory, therefore not valid
         return invalid();
     }
 
