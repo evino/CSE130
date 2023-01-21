@@ -27,7 +27,7 @@ int main() {
         byte_count++;
     } while (bytes_read > 0 && strstr(buffer, "\n") == NULL);
 
-    if (bytes_read == -1) {  // Make sure read didn't fail
+    if (bytes_read == -1) { // Make sure read didn't fail
         write(2, "Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
@@ -89,6 +89,7 @@ int main() {
         //close(fd);
         //write_fd = creat(file, 0777);
         write_fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0777);
+        fd = write_fd;
         printf("right before check\n");
         printf("write_fd: %d\n", write_fd);
         if (write_fd == -1) { // Make sure creat worked
@@ -124,7 +125,7 @@ int main() {
 
     // MAKE SURE TO CLOSE PROPER FILES, AND CHECK IT!!!
 
-    if (close(fd) == -1) {  // THIS IF IS CAUSING THE FAIL WHEN CALLING SET ON NEW FILE
+    if (close(fd) == -1) { // THIS IF IS CAUSING THE FAIL WHEN CALLING SET ON NEW FILE
         write(2, "HERE: Operation Failed\n", strlen("Operation Failed\n"));
         return 1;
     }
