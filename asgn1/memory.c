@@ -50,11 +50,14 @@ int main() {
         return invalid();
     }
 
-    struct stat fileCheck;
+    printf("DB1\n");
+    struct stat fileCheck = {0};
     stat(file, &fileCheck);
     if (S_ISDIR(fileCheck.st_mode) != 0) { // File is a directory, therefore not valid
         return invalid();
     }
+    printf("DB2\n");
+
 
     // If file is blank
     // if (strcmp(file, "") == 0) {
@@ -84,6 +87,7 @@ int main() {
 
     // Make sure file is closed
     int fd = open(file, O_RDWR);
+    printf("DB\n");
     if (fd == -1 && write_fd == 1) { // File does not exist
         return invalid();
         //write(2, invalid, strlen(invalid));
