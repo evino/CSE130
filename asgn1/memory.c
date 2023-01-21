@@ -53,8 +53,8 @@ int main() {
     //     return invalid();
     // }
 
-    int write_fd;
-    int read_fd;
+    int write_fd = 999;
+    int read_fd = 999;
     if (strcmp("get", command) == 0) {
         write_fd = 1;
     } else if (strcmp("set", command) == 0) {
