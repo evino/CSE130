@@ -140,6 +140,10 @@ int main() {
         return 1;
     }
 
+    if (read_fd == 0) {
+        write(1, "OK\n", strlen("OK\n"));
+    }
+
     return 0;
 }
 
