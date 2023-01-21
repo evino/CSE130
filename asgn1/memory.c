@@ -20,13 +20,13 @@ int main() {
     // Can read one byte at a time, and loop till there is a newline (in buffer)
    // int bytes_read = read(0, buffer, BUFFER_SIZE);
    int bytes_read = 0;
-   int i = 0;
+//    int i = 0;
 
 	int byte_count = 0;
    	do {
 		bytes_read = read(0, buffer + byte_count, 1);
-		printf("%s : ", buffer);
-		printf("%d\n", i); i++; // DB
+		// printf("%s : ", buffer);
+		// printf("%d\n", i); i++; // DB
 		byte_count++;
    	} while (bytes_read > 0 && strstr(buffer, "\n") == NULL);
 	// printf("%s\n", s);
@@ -36,7 +36,6 @@ int main() {
         return 1;
     }
 
-	printf("%s\n", buffer);
 
     // Split command and file up into tokens
     const char *delim1 = " ";
