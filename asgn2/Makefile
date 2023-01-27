@@ -8,14 +8,13 @@ HEADERS = asgn2_helper_funcs.h
 
 all: httpserver
 
-#httpserver: httpserver.o asgn_2_helper_funcs.a
-#	$(CC) $(CFLAGS) $(LDFLAGS) -o httpserver httpserver.o
 
 httpserver: httpserver.o asgn2_helper_funcs.a
-	$(CC) $(LDFLAGS) -o httpserver httpserver.o
+	clang -o httpserver httpserver.a asgn2_helper_funcs.a
+#	(CC) $(CFLAGS) -o httpserver httpserver.a asgn2_helper_funcs.a
 
-httpserver.o: $(BASE_SOURCES) $(HEADERS)
-	$(CC) $(CFLAGS) -c $(BASE_SOURCES)
+httpserver.a: httpserver.c asgn2_helper_funcs.h
+	$(CC) $(CFLAGS) -c httpserver.c
 
 
 echo: echo.o asgn2_helper_funcs.a
