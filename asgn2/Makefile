@@ -10,10 +10,10 @@ all: httpserver
 
 
 httpserver: httpserver.o asgn2_helper_funcs.a
-	clang -o httpserver httpserver.a asgn2_helper_funcs.a
-#	(CC) $(CFLAGS) -o httpserver httpserver.a asgn2_helper_funcs.a
+	$(CC) $(CFLAGS) -o httpserver httpserver.o asgn2_helper_funcs.a
+#	clang -o httpserver httpserver.o asgn2_helper_funcs.a
 
-httpserver.a: httpserver.c asgn2_helper_funcs.h
+httpserver.o: httpserver.c asgn2_helper_funcs.h
 	$(CC) $(CFLAGS) -c httpserver.c
 
 
