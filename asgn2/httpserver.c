@@ -13,11 +13,17 @@ int main(int argc, char **argv) {
 
 	int port = atoi(argv[1]);
 
+	if (port < 1 || port > 65535) {
+		write(2, "Invalid Port\n", strlen("Invalid Port\n"));
+		return 1;
+	}
+
 	Listener_Socket sock;
 
 	int sock_fd = listener_init(&sock, port);
 	if (sock_fd == -1) {
-		write(2, "Could not establish a new connection\n", strlen( "Could not establish a new connection\n"));
+		write(2, "Invalid Port\n", strlen("Invalid Port\n"));
+		//write(2, "Could not establish a new connection\n", strlen( "Could not establish a new connection\n"));
 	}
 	return 0;
 }
