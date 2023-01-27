@@ -35,8 +35,12 @@ int main(int argc, char **argv) {
 		int listen_fd = listener_accept(&sock);
 
 		if (listen_fd > 0) {
-			bytes_read = bytes_read + read(listen_fd, buff, BUF_SIZE);
-			printf("%d\n", bytes_read);
+			// bytes_read = bytes_read + read(listen_fd, buff, BUF_SIZE);
+			do {
+				bytes_read = read(listen_fd, buff, 4);
+				printf("%d\n", bytes_read);
+
+			} while (bytes_read > 0);
 			//byteStr = itoa(bytes_read);
 			//write(1, byteStr, strlen(byteStr));
 		}
