@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <stdio.h>
 
@@ -28,11 +29,15 @@ int main(int argc, char **argv) {
 
 	int listen_fd;
 	// Maybe do-while listen_fd > 0???
-    int bytes_read = 0;
+   // int bytes_read = 0;
 	while(1) {
 		listen_fd = listener_accept(&sock);
+		int readUntil;
         if (listen_fd != -1) {
-            
+			do {
+            	readUntil = read_until(listen_fd, buff, 4, "\r\n\r\n");
+			} while (readUntil > 0);
+			write(listen_fd, "done\n", strlen("done\n")); // returning once timed out
         }
 
 	}	
