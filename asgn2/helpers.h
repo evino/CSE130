@@ -1,7 +1,5 @@
 // General helper functions
-
-#ifndef HELPERS_H
-#define HELPERS_H
+#pragma once
 
 /** @brief Prints "Invalid Port\n"
  * 
@@ -10,5 +8,3 @@
  * @return 1
 */
 int invalid_port();
-
-#endif
