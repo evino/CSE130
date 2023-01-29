@@ -27,4 +27,4 @@ clean:
 	rm -f httpserver httpserver.o echo echo.o
 
 format:
-	clang-format -i -style=file httpserver.c
+	clang-format -i -style=file httpserver.c echo.c
