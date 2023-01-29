@@ -28,9 +28,12 @@ int main(int argc, char **argv) {
 
 	int listen_fd;
 	// Maybe do-while listen_fd > 0???
+    int bytes_read = 0;
 	while(1) {
 		listen_fd = listener_accept(&sock);
-
+        if (listen_fd != -1) {
+            
+        }
 
 	}	
 
