@@ -30,4 +30,4 @@ clean:
 	rm -f httpserver httpserver.o echo echo.o helpers helpers.o
 
 format:
-	clang-format -i -style=file httpserver.c echo.c
+	clang-format -i -style=file httpserver.c echo.c helpers.c helpers.h
