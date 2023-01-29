@@ -18,13 +18,13 @@ httpserver.o: httpserver.c asgn2_helper_funcs.h
 
 
 echo: echo.o asgn2_helper_funcs.a
-	$(CC) $(LDFLAGS) -o echo echo.o
+	$(CC) $(LDFLAGS) -o echo echo.o asgn2_helper_funcs.a
 
 echo.o: echo.c asgn2_helper_funcs.h
 	$(CC) $(CFLAGS) -c echo.c
 
 clean:
-	rm -f httpserver httpserver.o
+	rm -f httpserver httpserver.o echo echo.o
 
 format:
 	clang-format -i -style=file httpserver.c
