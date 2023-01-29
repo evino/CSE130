@@ -7,7 +7,6 @@ HEADERS = asgn2_helper_funcs.h helpers.h
 
 all: httpserver
 
-
 #httpserver: httpserver.o helpers.o asgn2_helper_funcs.a
 #	$(CC) $(CFLAGS) -o httpserver httpserver.o helpers.o asgn2_helper_funcs.a
 httpserver: $(HTTP_OBJS) asgn2_helper_funcs.a
