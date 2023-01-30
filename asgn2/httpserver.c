@@ -8,7 +8,7 @@
 #include "helpers.h"
 
 #define BUFF_SIZE 4096
-char buff[BUFF_SIZE + 1];
+char buf[BUFF_SIZE + 1];
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -29,15 +29,26 @@ int main(int argc, char **argv) {
 
 	int listen_fd;
 	// Maybe do-while listen_fd > 0???
-   // int bytes_read = 0;
+	int bytes_read;
 	while(1) {
 		listen_fd = listener_accept(&sock);
-		int readUntil;
         if (listen_fd != -1) {
-			do {
-            	readUntil = read_until(listen_fd, buff, 4, "\r\n\r\n");
-			} while (readUntil > 0);
-			write(listen_fd, "done\n", strlen("done\n")); // returning once timed out
+			// do {
+			// 	bytes_read = read_until(listen_fd, buf, 4, NULL);
+			// } while (bytes_read > 0);
+			bytes_read = read_until(listen_fd, buf, BUFF_SIZE, "\n");
+
+/*
+			if (bytes_read == -1) {
+				return 1;
+			}
+*/
+			//printf("%s\n", buf);
+			write(listen_fd, buf, strlen(buf));
+			printf("%d\n", bytes_read);
+
+
+			write(listen_fd, "done\r\n", strlen("done\r\n")); // returning once timed out
         }
 
 	}	
