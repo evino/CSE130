@@ -46,6 +46,8 @@ int main(int argc, char **argv) {
 			//printf("%s\n", buf);
 			//write(listen_fd, buf, strlen(buf));
 			write_all(listen_fd, buf, BUFF_SIZE);
+			// want to send thus buffer to a seperate file that
+			// parses using regex
 
 			printf("%d\n", bytes_read);
 
