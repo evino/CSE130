@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 			// do {
 			// 	bytes_read = read_until(listen_fd, buf, 4, NULL);
 			// } while (bytes_read > 0);
-			bytes_read = read_until(listen_fd, buf, BUFF_SIZE, "\n");
+			bytes_read = read_until(listen_fd, buf, BUFF_SIZE, "\r\n\r\n");
 
 /*
 			if (bytes_read == -1) {
@@ -44,11 +44,13 @@ int main(int argc, char **argv) {
 			}
 */
 			//printf("%s\n", buf);
-			write(listen_fd, buf, strlen(buf));
+			//write(listen_fd, buf, strlen(buf));
+			write_all(listen_fd, buf, BUFF_SIZE);
+
 			printf("%d\n", bytes_read);
 
 
-			write(listen_fd, "done\r\n", strlen("done\r\n")); // returning once timed out
+			// write(listen_fd, "\ndone\r\n", strlen("\ndone\r\n")); // returning once timed out
         }
 
 	}	
