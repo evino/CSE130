@@ -1,9 +1,9 @@
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -Wpedantic
 MEMCHECK = valgrind --leak-check=full
-HTTP_OBJS = httpserver.o helpers.o
+HTTP_OBJS = httpserver.o helpers.o parse.o
 ECHO_OBJS = echo.o
-HEADERS = asgn2_helper_funcs.h helpers.h
+HEADERS = asgn2_helper_funcs.h helpers.h parse.h
 
 all: httpserver
 
@@ -26,4 +26,4 @@ clean:
 	rm -f httpserver $(HTTP_OBJS) echo echo.o
 
 format:
-	clang-format -i -style=file httpserver.c echo.c helpers.c helpers.h
+	clang-format -i -style=file httpserver.c echo.c helpers.c helpers.h parse.c parse.h
