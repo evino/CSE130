@@ -8,9 +8,15 @@
 #include "helpers.h"
 
 #define BUFF_SIZE 4096
-char buf[BUFF_SIZE + 1];
+//char buf[BUFF_SIZE + 1];
+typedef struct {
+	char buf[BUFF_SIZE + 1];
+	char *request;
+	char *header;
+} Command;
 
 int main(int argc, char **argv) {
+	Command command= {0};
 	if (argc != 2) {
 		//return (invalid_port());
 		char *usage = "usage: ./httpserver <port>\n";
@@ -37,7 +43,7 @@ int main(int argc, char **argv) {
 		listen_fd = listener_accept(&sock);
 
         if (listen_fd != -1) {
-			bytes_read = read_until(listen_fd, buf, BUFF_SIZE, "\r\n\r\n");
+			bytes_read = read_until(listen_fd, (command.buf), BUFF_SIZE, "\r\n\r\n");
 			printf("db: %d\n", bytes_read);
 
 			/*
@@ -50,7 +56,7 @@ int main(int argc, char **argv) {
 
 			//printf("%s\n", buf);
 			//write(listen_fd, buf, strlen(buf));
-			write_all(listen_fd, buf, BUFF_SIZE);
+			printf("%zd\n", write_all(listen_fd, command.buf, BUFF_SIZE));
 			// want to send thus buffer to a seperate file that
 			// parses using regex
 
