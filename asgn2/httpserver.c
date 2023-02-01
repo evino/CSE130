@@ -6,14 +6,11 @@
 
 #include "asgn2_helper_funcs.h"
 #include "helpers.h"
+#include "parse.h"
 
-#define BUFF_SIZE 4096
+//#define BUFF_SIZE 4096
 //char buf[BUFF_SIZE + 1];
-typedef struct {
-	char buf[BUFF_SIZE + 1];
-	char *request;
-	char *header;
-} Command;
+
 
 int main(int argc, char **argv) {
 	Command command= {0};
@@ -61,6 +58,8 @@ int main(int argc, char **argv) {
 			// parses using regex
 
 			printf("%d\n", bytes_read);
+
+			request_parse(&command);
 
 
 
