@@ -12,7 +12,10 @@ char buf[BUFF_SIZE + 1];
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
-		return (invalid_port());
+		//return (invalid_port());
+		char *usage = "usage: ./httpserver <port>\n";
+		write(2, usage, strlen(usage));
+		return 1;
 	}
 
 	int port = atoi(argv[1]);
@@ -32,17 +35,19 @@ int main(int argc, char **argv) {
 	int bytes_read;
 	while(1) {
 		listen_fd = listener_accept(&sock);
-        if (listen_fd != -1) {
-			// do {
-			// 	bytes_read = read_until(listen_fd, buf, 4, NULL);
-			// } while (bytes_read > 0);
-			bytes_read = read_until(listen_fd, buf, BUFF_SIZE, "\r\n\r\n");
 
-/*
-			if (bytes_read == -1) {
+        if (listen_fd != -1) {
+			bytes_read = read_until(listen_fd, buf, BUFF_SIZE, "\r\n\r\n");
+			printf("db: %d\n", bytes_read);
+
+			/*
+			// FIGURE OUT WHAT WILL NEED TO HAPPEN HERE
+
+			if (bytes_read == -1) { // RETURN internal server error code here
 				return 1;
 			}
-*/
+			*/
+
 			//printf("%s\n", buf);
 			//write(listen_fd, buf, strlen(buf));
 			write_all(listen_fd, buf, BUFF_SIZE);
@@ -52,6 +57,8 @@ int main(int argc, char **argv) {
 			printf("%d\n", bytes_read);
 
 
+
+			//close(listen_fd);
 			// write(listen_fd, "\ndone\r\n", strlen("\ndone\r\n")); // returning once timed out
         }
 
