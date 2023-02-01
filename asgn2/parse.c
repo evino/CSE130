@@ -21,7 +21,7 @@ void request_parse(Command *com) {
     rc = regexec(&re, (char *) com->buf, 5, matches, 0);
     if (rc == 0) {
         com->method = com->buf;
-        com->method[matches[1].rm_eo] = '\0';
+        com->method[matches[1].rm_eo] = '\0';  // NEED TO FIGURE OUT WHY method is NULL
     }
     printf("db: %s\n", com->buf);
     printf("method: %s\n", com->method);
