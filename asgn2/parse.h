@@ -6,8 +6,11 @@
 typedef struct {
     char buf[BUFF_SIZE + 1];
     char *method;
+    char *URI;
+    char *version;
     char *request;
     char *header;
+    char *request_line;
 } Command;
 
 void request_parse(Command *com);
