@@ -1,6 +1,8 @@
 
 #include <regex.h>
 #include <assert.h>
+#include <stdbool.h>
+
 
 #include "parse.h"
 #include "helpers.h"
@@ -18,6 +20,8 @@ void request_parse(Command *com) {
     rc = regcomp(&re, REQUEST_REGEX, REG_EXTENDED);
     assert(!rc); // MAY NEED INTERNAL SERVER ERROR HERE
 
+    bool badRequest = false;
+
     rc = regexec(&re, (char *) com->buf, 4, matches, 0);
     if (rc == 0) {
         com->request_line = com->buf;
@@ -34,7 +38,14 @@ void request_parse(Command *com) {
         //com->method[matches[1].rm_eo] = '\0';  // NEED TO FIGURE OUT WHY method is NULL
     } else {
         printf("NOOOOOOO MATCHOOOOO\n");
+        badRequest = true;
     }
+
+    if (badRequest == true) {
+        printf("SHOULD PRINT A BAD REQUEST here\n");
+    }
+
+
     //printf("db: %s\n", matches[0]);
     // DEBUG PRINTS
     printf("method: %s\n", com->method);
