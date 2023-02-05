@@ -30,3 +30,6 @@ typedef struct {
 } Command;
 
 void request_parse(Command *com);
+
+// Returns status code
+int status_return();

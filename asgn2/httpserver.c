@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
     // Maybe do-while listen_fd > 0???
     int bytes_read;
     while (1) {
+		write(sock_fd, "top\n", strlen("top\n"));
+
         listen_fd = listener_accept(&sock);
 
         if (listen_fd != -1) {
@@ -60,7 +62,25 @@ int main(int argc, char **argv) {
 
             request_parse(&command);
 
-            //close(listen_fd);
+            
+			
+			
+			
+			
+			
+			// CLOSES CLIENT SIDE AT END
+			int status_code = status_return();
+			switch (status_code)
+			{
+			case (BAD_REQUEST):
+				write(listen_fd, "BAD REQUEST\n", strlen("BAD REQUEST\n"));
+				break;
+			
+			default:
+				break;
+			}
+			
+			close(listen_fd);
             // write(listen_fd, "\ndone\r\n", strlen("\ndone\r\n")); // returning once timed out
         }
     }
