@@ -25,7 +25,9 @@ typedef struct {
     char *URI;
     char *version;
     char *request;
-    char *header;
+    char *key;
+    char *value;
+    char *header_field;
     char *request_line;
 } Command;
 
