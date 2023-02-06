@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 
 #include <stdio.h>
 
@@ -38,12 +39,18 @@ int main(int argc, char **argv) {
     while (1) {
 		write(sock_fd, "top\n", strlen("top\n"));
 
-        listen_fd = listener_accept(&sock);
 
+
+        listen_fd = listener_accept(&sock);
         if (listen_fd != -1) {
             bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");
+            // ststr + 4 for msg_body
+            write_all(sock_fd, strstr(command.buf, "\r\n\r\n") + 4, (command.buf + bytes_read) - (strstr(command.buf, "\r\n\r\n")+4));
+
+            // use pass_bytes for stuff after buffer
+
             command.buf[BUFF_SIZE] = 0;
-            command.request_line = command.buf;
+            //command.request_line = command.buf;
             printf("db: %d\n", bytes_read);
 
 
@@ -67,10 +74,11 @@ int main(int argc, char **argv) {
             //command = *(request_parse(&command));
             
             request_parse(&command);
+            content_len(&command);
                         printf("db buf,\n%s\n", command.buf);
 
                 //printf("msg is %s\n", command.msg);
-            content_len(&command);
+
 
             printf("DB: %s\n", command.header_field);
             printf("DB: %s\n", command.method);
@@ -84,7 +92,7 @@ int main(int argc, char **argv) {
             if (strcmp(command.method, "PUT") == 0) {
                 //int msg_read = read_until(listen_fd, command.buf, command.length, NULL);
                 if (bytes_read < BUFF_SIZE) {  // We know it reached end of file
-                    command.msg = command.msg + 4;
+                    //command.msg = command.msg + 4; // +4 for the \r\n\r\n sequence
                     //const char delim[] = "\r\n\r\n";
                     //char *token = strtok(command.buf, "\r\n\r\n");
                     //token = strtok(NULL, delim);
@@ -96,7 +104,11 @@ int main(int argc, char **argv) {
                 }
             }
 			
-			
+
+            int test = open("test.txt", O_CREAT | O_RDWR | O_TRUNC, 0777);
+        
+            int pass = pass_bytes(listen_fd, test, 4096);
+            printf("%d\n", pass);
 			
 			
 			// CLOSES CLIENT SIDE AT END
