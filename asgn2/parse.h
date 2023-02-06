@@ -31,5 +31,7 @@ typedef struct {
 
 void request_parse(Command *com);
 
+void header_parse(Command *com);
+
 // Returns status code
 int status_return();
