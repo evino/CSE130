@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "helpers.h"
 #include "asgn2_helper_funcs.h"
@@ -32,9 +33,11 @@ typedef struct {
     int length;
     char *header_field;
     char *request_line;
+    char *msg;
 } Command;
 
-Command* request_parse(Command *com);
+//Command* request_parse(Command *com);
+void request_parse(Command *com);
 
 void header_parse(Command *com);
 
