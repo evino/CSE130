@@ -44,12 +44,17 @@ int main(int argc, char **argv) {
         listen_fd = listener_accept(&sock);
         if (listen_fd != -1) {
             bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");
+            command.buf[BUFF_SIZE] = 0;
+
+            //command.request_line = command.buf;
+            strcpy(command.request_line, command.buf);
+
             // ststr + 4 for msg_body
             write_all(sock_fd, strstr(command.buf, "\r\n\r\n") + 4, (command.buf + bytes_read) - (strstr(command.buf, "\r\n\r\n")+4));
+            // if bytes_read >= BUFF_SIZE{ pass_bytes(clint, src)}
 
             // use pass_bytes for stuff after buffer
 
-            command.buf[BUFF_SIZE] = 0;
             //command.request_line = command.buf;
             printf("db: %d\n", bytes_read);
 
@@ -98,7 +103,6 @@ int main(int argc, char **argv) {
                     //token = strtok(NULL, delim);
                     //printf("buf, %s\n", command.buf);
                     //char *msg = strstr(command.buf, "\r\n\r\n");
-                    write(sock_fd, command.msg, strlen(command.msg));
                     //printf("msg = %s\n", token);
                     //write_all(sock_fd, msg + 4, BUFF_SIZE);
                 }
