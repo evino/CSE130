@@ -41,7 +41,7 @@ void request_parse(Command *com) {
 
         //com->method = com->request_line + matches[1].rm_so;
        // com->method = com->request_line;
-       com->msg = strstr(com->buf, "\r\n\r\n")+4;
+       com->msg = strstr(com->buf, "\r\n\r\n");
 
         com->method = com->request_line;                
         com->method[matches[1].rm_eo] = '\0';
