@@ -10,12 +10,15 @@
 // FOR DB
 #include <stdio.h>
 
+//#define REQUEST_REGEX "^([a-zA-Z]{1,8}) /([a-zA-Z0-9._]{1,63}) (HTTP/[0-9].[0-9])\r\n"
 #define REQUEST_REGEX "^([a-zA-Z]{1,8}) /([a-zA-Z0-9.-]{1,63}) (HTTP/[0-9].[0-9])\r\n(([a-zA-Z0-9.-]{1,128}: [\x20-\x7F]{0,128}\r\n)*)\r\n"
 
-#define HEADER_REGEX "([a-zA-Z0-9.-]{1,128}): ([\x20-\x7F]{0,128})\r\n"
+#define HEADER_REGEX "\r\n(([a-zA-Z0-9.-]{1,128}): ([\x20-\x7F]{0,128})\r\n*)"
+
+#define CONTENT_LEN "(Content-Length): ([0-9]{1,128})"
 
 int status = 0; // WILL HAVE TO ASSIGN FOR EACH POSSIBLE STATUS
-void request_parse(Command *com) {
+Command* request_parse(Command *com) {
     regex_t re;
     regmatch_t matches[5];
     int rc;
@@ -68,7 +71,7 @@ void request_parse(Command *com) {
     //printf("db: %s\n", matches[0]);
     // DEBUG PRINTS
 
-
+    return com;
 }
 // CALL REGFREE
 
@@ -95,11 +98,38 @@ void header_parse(Command *com) {
         printf("DB, header no match for now\n");
     }
 
+
+    regfree(&re);
     printf("key: %s\n", com->key);
     printf("val: %s\n", com->value);
 }
 
+void content_len(Command *com) {
+    regex_t re;
+    regmatch_t matches[3];
+    int rc;
+
+    rc = regcomp(&re, CONTENT_LEN, REG_EXTENDED);
+    assert(!rc);
+
+    rc = regexec(&re, (char *) com->header_field, 3, matches, 0);
+    if (rc == 0) {
+        com->key = com->header_field + matches[1].rm_so;
+        com->key[matches[1].rm_eo - matches[1].rm_so] = '\0';
+
+        com->value = com->header_field + matches[2].rm_so;
+        com->value[matches[2].rm_eo - matches[2].rm_so] = '\0';
+    } else {
+        printf("ERR\n");
+    }
+
+
+    com->length = atoi(com->value);
+    //int length = atoi(com->value);
+    //return length;
+}
 
 int status_return() {
     return status;
 }
+

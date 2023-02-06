@@ -60,8 +60,14 @@ int main(int argc, char **argv) {
 
             printf("%d\n", bytes_read);
 
-            request_parse(&command);
+            command = *(request_parse(&command));
 
+            content_len(&command);
+
+            printf("DB: %s\n", command.header_field);
+            printf("DB: %s\n", command.method);
+
+            printf("len is %d\n", command.length);
             //header_parse(&command);
 
             
