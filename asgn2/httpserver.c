@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
             if (strcmp(command.method, "PUT") == 0) {
                 //int msg_read = read_until(listen_fd, command.buf, command.length, NULL);
                 if (bytes_read < BUFF_SIZE) {  // We know it reached end of file
-                    command.msg = command.msg;
+                    command.msg = command.msg + 4;
                     //const char delim[] = "\r\n\r\n";
                     //char *token = strtok(command.buf, "\r\n\r\n");
                     //token = strtok(NULL, delim);
