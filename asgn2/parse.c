@@ -119,12 +119,13 @@ void content_len(Command *com) {
 
         com->value = com->header_field + matches[2].rm_so;
         com->value[matches[2].rm_eo - matches[2].rm_so] = '\0';
+        com->length = atoi(com->value);
+
     } else {
         printf("ERR\n");
     }
 
 
-    com->length = atoi(com->value);
     //int length = atoi(com->value);
     //return length;
 }
