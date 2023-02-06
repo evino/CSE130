@@ -41,8 +41,11 @@ int main(int argc, char **argv) {
         listen_fd = listener_accept(&sock);
 
         if (listen_fd != -1) {
-            bytes_read = read_until(listen_fd, (command.buf), BUFF_SIZE, "\r\n\r\n");
+            bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");
+            command.buf[BUFF_SIZE] = 0;
+            command.request_line = command.buf;
             printf("db: %d\n", bytes_read);
+
 
             /*
 			// FIGURE OUT WHAT WILL NEED TO HAPPEN HERE
@@ -54,24 +57,44 @@ int main(int argc, char **argv) {
 
             //printf("%s\n", buf);
             //write(listen_fd, buf, strlen(buf));
-            printf("%zd\n", write_all(listen_fd, command.buf, BUFF_SIZE));
+            //printf("%zd\n", write_all(listen_fd, command.buf, BUFF_SIZE));
             // want to send thus buffer to a seperate file that
             // parses using regex
 
             printf("%d\n", bytes_read);
 
-            command = *(request_parse(&command));
+            printf("buf, %s\n", command.buf);
+            //command = *(request_parse(&command));
+            
+            request_parse(&command);
+                        printf("db buf,\n%s\n", command.buf);
 
+                //printf("msg is %s\n", command.msg);
             content_len(&command);
 
             printf("DB: %s\n", command.header_field);
             printf("DB: %s\n", command.method);
 
-            printf("len is %d\n", command.length);
+            printf("len is %d\n", command.length);  // THIS WILL ERROR IF "Content-Length" isn't present
             //header_parse(&command);
 
-            
-			
+
+            printf("TEST: %s\n", command.request_line);
+			// READ message body
+            if (strcmp(command.method, "PUT") == 0) {
+                //int msg_read = read_until(listen_fd, command.buf, command.length, NULL);
+                if (bytes_read < BUFF_SIZE) {  // We know it reached end of file
+                    command.msg = command.msg;
+                    //const char delim[] = "\r\n\r\n";
+                    //char *token = strtok(command.buf, "\r\n\r\n");
+                    //token = strtok(NULL, delim);
+                    //printf("buf, %s\n", command.buf);
+                    //char *msg = strstr(command.buf, "\r\n\r\n");
+                    write(sock_fd, command.msg, strlen(command.msg));
+                    //printf("msg = %s\n", token);
+                    //write_all(sock_fd, msg + 4, BUFF_SIZE);
+                }
+            }
 			
 			
 			
