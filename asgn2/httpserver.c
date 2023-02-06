@@ -8,6 +8,7 @@
 #include "asgn2_helper_funcs.h"
 #include "helpers.h"
 #include "parse.h"
+#include "request.h"
 
 //#define BUFF_SIZE 4096
 //char buf[BUFF_SIZE + 1];
@@ -29,6 +30,7 @@ int main(int argc, char **argv) {
     Listener_Socket sock;
 
     int sock_fd = listener_init(&sock, port);
+    command.server_fd = sock_fd;
     if (sock_fd == -1) {
         return (invalid_port());
     }
@@ -42,8 +44,9 @@ int main(int argc, char **argv) {
 
 
         listen_fd = listener_accept(&sock);
+        command.client_fd = listen_fd;
         if (listen_fd != -1) {
-            bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");
+            bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");  // ADD ERROR CHECK HERE
             command.buf[BUFF_SIZE] = 0;
 
             //command.request_line = command.buf;
@@ -79,7 +82,9 @@ int main(int argc, char **argv) {
             //command = *(request_parse(&command));
             
             request_parse(&command);
-            content_len(&command);
+            printf("DB!!!!\n");
+            //content_len(&command);
+            printf("ANOTHA\n");
                         printf("db buf,\n%s\n", command.buf);
 
                 //printf("msg is %s\n", command.msg);
@@ -94,6 +99,7 @@ int main(int argc, char **argv) {
 
             printf("TEST: %s\n", command.request_line);
 			// READ message body
+            /*
             if (strcmp(command.method, "PUT") == 0) {
                 //int msg_read = read_until(listen_fd, command.buf, command.length, NULL);
                 if (bytes_read < BUFF_SIZE) {  // We know it reached end of file
@@ -107,25 +113,30 @@ int main(int argc, char **argv) {
                     //write_all(sock_fd, msg + 4, BUFF_SIZE);
                 }
             }
+            */
 			
-
+/*
             int test = open("test.txt", O_CREAT | O_RDWR | O_TRUNC, 0777);
         
             int pass = pass_bytes(listen_fd, test, 4096);
             printf("%d\n", pass);
+            */
 			
 			
 			// CLOSES CLIENT SIDE AT END
-			int status_code = status_return();
-			switch (status_code)
-			{
-			case (BAD_REQUEST):
-				write(listen_fd, "BAD REQUEST\n", strlen("BAD REQUEST\n"));
-				break;
+			// int status_code = status_return();
+			// switch (status_code)
+			// {
+			// case (BAD_REQUEST):
+			// 	write(listen_fd, "BAD REQUEST\n", strlen("BAD REQUEST\n"));
+			// 	break;
 			
-			default:
-				break;
-			}
+			// default:
+			// 	break;
+			// }
+
+            printf("db");
+            request_handler(&command);
 			
 			close(listen_fd);
             // write(listen_fd, "\ndone\r\n", strlen("\ndone\r\n")); // returning once timed out
