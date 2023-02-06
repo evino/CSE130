@@ -18,33 +18,49 @@
 #define CONTENT_LEN "(Content-Length): ([0-9]{1,128})"
 
 int status = 0; // WILL HAVE TO ASSIGN FOR EACH POSSIBLE STATUS
-Command* request_parse(Command *com) {
+//Command* request_parse(Command *com) {
+void request_parse(Command *com) {
+    printf("in reg: %s\n------", com->buf);
     regex_t re;
     regmatch_t matches[5];
     int rc;
+    //com->buf[BUFF_SIZE] = 0;
+    //com->request_line = com->buf;
+    //com->request_line[BUFF_SIZE] = 0;
 
     rc = regcomp(&re, REQUEST_REGEX, REG_EXTENDED);
     assert(!rc); // MAY NEED INTERNAL SERVER ERROR HERE
 
    // bool badRequest = false;
 
-    rc = regexec(&re, (char *) com->buf, 5, matches, 0);
+    rc = regexec(&re, (char *)com->request_line, 5, matches, 0);
     if (rc == 0) {
-        com->request_line = com->buf;
 
-        com->method = com->buf + matches[1].rm_so;
-        com->method[matches[1].rm_eo - matches[1].rm_so] = '\0';
+       // com->request_line = com->buf;
+        //com->request_line[matches[0].rm_eo] = '\0';
 
-        com->URI = com->buf + matches[2].rm_so;
+        //com->method = com->request_line + matches[1].rm_so;
+       // com->method = com->request_line;
+       com->msg = strstr(com->buf, "\r\n\r\n")+4;
+
+        com->method = com->request_line;                
+        com->method[matches[1].rm_eo] = '\0';
+        //com->method[matches[1].rm_eo - matches[1].rm_so] = '\0';
+
+
+
+        com->URI = com->request_line + matches[2].rm_so;
         com->URI[matches[2].rm_eo - matches[2].rm_so] = '\0';
 
-        com->version = com->buf + matches[3].rm_so;
+
+        com->version = com->request_line + matches[3].rm_so;
         com->version[matches[3].rm_eo - matches[3].rm_so] = '\0';
 
-        com->header_field = com->buf + matches[4].rm_so;
+        com->header_field = com->request_line + matches[4].rm_so;
         com->header_field[matches[4].rm_eo - matches[4].rm_so] = '\0';
 
         status = 200; // CHANGE THIS LATER!!
+
 
         
         //   com->method = &REQUEST_REGEX[matches[1].rm_so];// - matches[1].rm_so;
@@ -61,6 +77,7 @@ Command* request_parse(Command *com) {
     if (status == BAD_REQUEST) {
         printf("SHOULD PRINT A BAD REQUEST here\n");
     } else {
+        printf("BUFFER: %s\n", com->buf);
         printf("method: %s\n", com->method);
         printf("URI: %s\n", com->URI);
         printf("version: %s\n", com->version);
@@ -71,11 +88,11 @@ Command* request_parse(Command *com) {
     //printf("db: %s\n", matches[0]);
     // DEBUG PRINTS
 
-    return com;
+    //return com;
 }
 // CALL REGFREE
 
-
+/*
 void header_parse(Command *com) {
     regex_t re;
     regmatch_t matches[3];
@@ -103,6 +120,7 @@ void header_parse(Command *com) {
     printf("key: %s\n", com->key);
     printf("val: %s\n", com->value);
 }
+*/
 
 void content_len(Command *com) {
     regex_t re;
@@ -122,6 +140,7 @@ void content_len(Command *com) {
         com->length = atoi(com->value);
 
     } else {
+        // BAD REQUEST HERE
         printf("ERR\n");
     }
 
