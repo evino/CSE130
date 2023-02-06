@@ -33,6 +33,9 @@ typedef struct {
     int length;
     char *header_field;
     char request_line[BUFF_SIZE + 1];
+    int status;
+    int client_fd;
+    int server_fd;
 } Command;
 
 //Command* request_parse(Command *com);

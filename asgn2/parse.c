@@ -58,7 +58,7 @@ void request_parse(Command *com) {
         com->header_field = com->request_line + matches[4].rm_so;
         com->header_field[matches[4].rm_eo - matches[4].rm_so] = '\0';
 
-        status = 200; // CHANGE THIS LATER!!
+        com->status = 200; // CHANGE THIS LATER!!
 
 
         
@@ -69,11 +69,11 @@ void request_parse(Command *com) {
         //badRequest = true;
         //com->status = 400;
         //status = status_codes.BAD_REQUEST;
-        status = BAD_REQUEST;
+        com->status = BAD_REQUEST;
     }
 
     regfree(&re);
-    if (status == BAD_REQUEST) {
+    if (com->status == BAD_REQUEST) {
         printf("SHOULD PRINT A BAD REQUEST here\n");
     } else {
         printf("BUFFER: %s\n", com->buf);
