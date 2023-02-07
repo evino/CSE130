@@ -14,6 +14,7 @@ void not_imp(Command *com) {
 }
 
 void not_sup(Command *com) {
+    com->status = Version_Not_Supported;
     write_all(com->client_fd,
         "HTTP/1.1 505 Version Not Supported\r\nContent-Length: 22\r\n\r\nVersion Not Supported\n",
         strlen("HTTP/1.1 501 Version Not Supported\r\nContent-Length: 22\r\n\r\nVersion Not "
@@ -21,11 +22,13 @@ void not_sup(Command *com) {
 }
 
 void not_found(Command *com) {
+    com->status = Not_Found;
     write_all(com->client_fd, "HTTP/1.1 404 Not Found\r\nContent-Length: 10\r\n\r\nNot Found\n",
         strlen("HTTP/1.1 404 Not Found\r\nContent-Length: 10\r\n\r\nNot Found\n"));
 }
 
 void forbid(Command *com) {
+    com->status = Forbidden;
     write_all(com->client_fd, "HTTP/1.1 403 Forbidden\r\nContent-Length: 10\r\n\r\nForbidden\n",
         strlen("HTTP/1.1 403 Forbidden\r\nContent-Length: 10\r\n\r\nForbidden\n"));
 }
@@ -36,6 +39,7 @@ void get_response(Command *com, int fd) {
     int spf = sprintf(response, "%s %d OK\r\nContent-Length: %d\r\n\r\n", com->version, com->status,
         com->file_size);
     if (spf < 0) { // Internal error with sprintf() occured
+        com->status = Server_Error;
         write_all(com->client_fd,
             "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 22\r\n\r\nInternal Server "
             "Error\n",
@@ -48,6 +52,8 @@ void get_response(Command *com, int fd) {
     do {
         passed = pass_bytes(fd, com->client_fd, BUFF_SIZE);
     } while (passed == BUFF_SIZE);
+
+    com->status = OK;
 
     return;
 }
@@ -65,6 +71,7 @@ void put_response(Command *com, int fd) {
     int spf = sprintf(response, "%s %d %s\r\nContent-Length: %lu\r\n\r\n%s\n", com->version,
         com->status, com->phrase, strlen(com->phrase) + 1, com->phrase);
     if (spf < 0) {
+        com->status = Server_Error;
         write_all(com->client_fd,
             "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 22\r\n\r\nInternal Server "
             "Error\n",
