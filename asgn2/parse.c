@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-
 #include "parse.h"
 #include "helpers.h"
 
@@ -11,7 +10,9 @@
 #include <stdio.h>
 
 //#define REQUEST_REGEX "^([a-zA-Z]{1,8}) /([a-zA-Z0-9._]{1,63}) (HTTP/[0-9].[0-9])\r\n"
-#define REQUEST_REGEX "^([a-zA-Z]{1,8}) /([a-zA-Z0-9.-]{1,63}) (HTTP/[0-9].[0-9])\r\n(([a-zA-Z0-9.-]{1,128}: [\x20-\x7F]{0,128}\r\n)*)\r\n"
+#define REQUEST_REGEX                                                                              \
+    "^([a-zA-Z]{1,8}) /([a-zA-Z0-9.-]{1,63}) (HTTP/[0-9].[0-9])\r\n(([a-zA-Z0-9.-]{1,128}: "       \
+    "[\x20-\x7F]{0,128}\r\n)*)\r\n"
 
 #define HEADER_REGEX "\r\n(([a-zA-Z0-9.-]{1,128}): ([\x20-\x7F]{0,128})\r\n*)"
 
@@ -31,26 +32,23 @@ void request_parse(Command *com) {
     rc = regcomp(&re, REQUEST_REGEX, REG_EXTENDED);
     assert(!rc); // MAY NEED INTERNAL SERVER ERROR HERE
 
-   // bool badRequest = false;
+    // bool badRequest = false;
 
-    rc = regexec(&re, (char *)com->request_line, 5, matches, 0);
+    rc = regexec(&re, (char *) com->request_line, 5, matches, 0);
     if (rc == 0) {
 
-       // com->request_line = com->buf;
+        // com->request_line = com->buf;
         //com->request_line[matches[0].rm_eo] = '\0';
 
         //com->method = com->request_line + matches[1].rm_so;
-       // com->method = com->request_line;
+        // com->method = com->request_line;
 
-        com->method = com->request_line;                
+        com->method = com->request_line;
         com->method[matches[1].rm_eo] = '\0';
         //com->method[matches[1].rm_eo - matches[1].rm_so] = '\0';
 
-
-
         com->URI = com->request_line + matches[2].rm_so;
         com->URI[matches[2].rm_eo - matches[2].rm_so] = '\0';
-
 
         com->version = com->request_line + matches[3].rm_so;
         com->version[matches[3].rm_eo - matches[3].rm_so] = '\0';
@@ -60,8 +58,6 @@ void request_parse(Command *com) {
 
         com->status = 200; // CHANGE THIS LATER!!
 
-
-        
         //   com->method = &REQUEST_REGEX[matches[1].rm_so];// - matches[1].rm_so;
         //com->method[matches[1].rm_eo] = '\0';  // NEED TO FIGURE OUT WHY method is NULL
     } else {
@@ -82,7 +78,6 @@ void request_parse(Command *com) {
         printf("version: %s\n", com->version);
         printf("header: %s\n", com->header_field);
     } */
-
 
     //printf("db: %s\n", matches[0]);
     // DEBUG PRINTS
@@ -143,7 +138,6 @@ void content_len(Command *com) {
         printf("ERR\n");
     }
 
-
     //int length = atoi(com->value);
     //return length;
 }
@@ -151,4 +145,3 @@ void content_len(Command *com) {
 int status_return() {
     return status;
 }
-

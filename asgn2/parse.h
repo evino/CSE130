@@ -19,9 +19,6 @@ enum status_codes {
     Version_Not_Supported = 505
 };
 
-
-
-
 typedef struct {
     char buf[BUFF_SIZE + 1];
     char *method;
@@ -45,7 +42,6 @@ typedef struct {
 void request_parse(Command *com);
 
 void header_parse(Command *com);
-
 
 void content_len(Command *com);
 
