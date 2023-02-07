@@ -65,7 +65,6 @@ void request_parse(Command *com) {
         //   com->method = &REQUEST_REGEX[matches[1].rm_so];// - matches[1].rm_so;
         //com->method[matches[1].rm_eo] = '\0';  // NEED TO FIGURE OUT WHY method is NULL
     } else {
-        printf("NOOOOOOO MATCHOOOOO\n");  // BAD REQUEST WOULD GO HERE
         //badRequest = true;
         //com->status = 400;
         //status = status_codes.BAD_REQUEST;
@@ -84,7 +83,7 @@ void request_parse(Command *com) {
         printf("header: %s\n", com->header_field);
     } */
 
-    
+
     //printf("db: %s\n", matches[0]);
     // DEBUG PRINTS
 
