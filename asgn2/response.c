@@ -43,6 +43,7 @@ void put_response(Command *com, int fd) {
     do {
         passed = pass_bytes(com->client_fd, fd, com->length);
     } while (passed == BUFF_SIZE);
+    write_all(com->client_fd, "\0", 1);
 
 
     char response[BUFF_SIZE];
