@@ -22,6 +22,7 @@ void forbid(Command *com) {
 
 void get_response(Command *com, int fd) {
     char response[BUFF_SIZE];
+ 
     int spf = sprintf(response, "%s %d OK\r\nContent-Length: %d\r\n\r\n", com->version, com->status, com->file_size);
     if (spf < 0) { // Internal error with sprintf() occured
         write_all(com->client_fd, "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 22\r\n\r\nInternal Server Error\n", strlen("HTTP/1.1 500 Internal Server Error\r\nContent-Length: 22\r\n\r\nInternal Server Error\n"));
@@ -32,4 +33,25 @@ void get_response(Command *com, int fd) {
     do {
         passed = pass_bytes(fd, com->client_fd, BUFF_SIZE);
     } while (passed == BUFF_SIZE);
+
+    return;
+}
+
+void put_response(Command *com, int fd) {
+    write_all(fd, strstr(com->buf, "\r\n\r\n") + 4, (com->buf + com->bytes_read) - strstr(com->buf, "\r\n\r\n") + 4);
+    int passed;
+    do {
+        passed = pass_bytes(com->client_fd, fd, com->length);
+    } while (passed == BUFF_SIZE);
+
+
+    char response[BUFF_SIZE];
+    int spf = sprintf(response, "%s %d %s\r\nContent-Length: %lu\r\n\r\n%s\n", com->version, com->status, com->phrase, strlen(com->phrase) + 1, com->phrase);
+    if (spf < 0) {
+        write_all(com->client_fd, "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 22\r\n\r\nInternal Server Error\n", strlen("HTTP/1.1 500 Internal Server Error\r\nContent-Length: 22\r\n\r\nInternal Server Error\n"));
+        return;
+    }
+    write_all(com->client_fd, response, strlen(response));
+
+    return;
 }

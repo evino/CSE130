@@ -54,16 +54,27 @@ void request_handler(Command *com) {
             //     passed = pass_bytes(fd, com->client_fd, BUFF_SIZE);
             // } while (passed == BUFF_SIZE);
     } else if (strcmp("PUT", com->method) == 0) {
-        char *msg;
+        // content_len(com);
         int fd = open(com->URI, O_RDWR | O_TRUNC);
         if (fd == -1) {
             //fd = creat(com->URI, S_IRWXG)
             fd = creat(com->URI, 0777);  // Let's see if if this gets rid of file being seen as executable
-            msg = "Created";
+            com->phrase = "Created";
+            com->status = Created;
         } else {
-            msg = "OK";
+            com->phrase = "OK";
+            com->status = OK;
         }
-        write(com->client_fd, msg, strlen(msg));
+
+        put_response(com, fd);
+
+        // write_all(fd, strstr(com->buf, "\r\n\r\n") + 4, (com->buf + com->bytes_read) - strstr(com->buf, "\r\n\r\n") + 4);
+        // int passed;
+        // do {
+        //     passed = pass_bytes(com->client_fd, fd, BUFF_SIZE);
+        // } while (passed == BUFF_SIZE);
+
+        //write(com->client_fd, phrase, strlen(phrase));
     } else {
         com->status = Not_Implemented;
         not_imp(com);

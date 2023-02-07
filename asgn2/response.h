@@ -18,3 +18,5 @@ void not_found(Command *com);
 void forbid(Command *com);
 
 void get_response(Command *com, int fd);
+
+void put_response(Command *com, int fd);
