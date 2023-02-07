@@ -39,14 +39,14 @@ int main(int argc, char **argv) {
     // Maybe do-while listen_fd > 0???
     int bytes_read;
     while (1) {
-		// write(sock_fd, "top\n", strlen("top\n"));
-
-
+        // write(sock_fd, "top\n", strlen("top\n"));
 
         listen_fd = listener_accept(&sock);
         command.client_fd = listen_fd;
         if (listen_fd != -1) {
-            bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");  // ADD ERROR CHECK HERE
+            bytes_read
+                = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n"); // ADD ERROR CHECK HERE
+            //printf("%s\n", strstr(command.buf, NULL));
             command.buf[BUFF_SIZE] = 0;
             command.bytes_read = bytes_read;
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
             // want to send thus buffer to a seperate file that
             // parses using regex
 
-/*
+            /*
             printf("%d\n", bytes_read);
 
             printf("buf, %s\n", command.buf);
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 
             printf("TEST: %s\n", command.request_line);
             */
-			// READ message body
+            // READ message body
             /*
             if (strcmp(command.method, "PUT") == 0) {
                 //int msg_read = read_until(listen_fd, command.buf, command.length, NULL);
@@ -121,38 +121,37 @@ int main(int argc, char **argv) {
                 }
             }
             */
-			
-/*
+
+            /*
             int test = open("test.txt", O_CREAT | O_RDWR | O_TRUNC, 0777);
         
             int pass = pass_bytes(listen_fd, test, 4096);
             printf("%d\n", pass);
             */
-			
-			
-			// CLOSES CLIENT SIDE AT END
-			// int status_code = status_return();
-			// switch (status_code)
-			// {
-			// case (BAD_REQUEST):
-			// 	write(listen_fd, "BAD REQUEST\n", strlen("BAD REQUEST\n"));
-			// 	break;
-			
-			// default:
-			// 	break;
-			// }
 
-        //    printf("db");
-        
+            // CLOSES CLIENT SIDE AT END
+            // int status_code = status_return();
+            // switch (status_code)
+            // {
+            // case (BAD_REQUEST):
+            // 	write(listen_fd, "BAD REQUEST\n", strlen("BAD REQUEST\n"));
+            // 	break;
+
+            // default:
+            // 	break;
+            // }
+
+            //    printf("db");
+
             request_parse(&command);
             request_handler(&command);
-			
-			close(listen_fd);
+
+            close(listen_fd);
             // write(listen_fd, "\ndone\r\n", strlen("\ndone\r\n")); // returning once timed out
         }
     }
 
-    printf("%d", listen_fd);
+    //printf("%d", listen_fd);
 
     return 0;
 }
