@@ -36,6 +36,7 @@ typedef struct {
     int status;
     int client_fd;
     int server_fd;
+    int file_size;
 } Command;
 
 //Command* request_parse(Command *com);
