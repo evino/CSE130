@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     // Maybe do-while listen_fd > 0???
     int bytes_read;
     while (1) {
-		write(sock_fd, "top\n", strlen("top\n"));
+		// write(sock_fd, "top\n", strlen("top\n"));
 
 
 
@@ -48,11 +48,13 @@ int main(int argc, char **argv) {
         if (listen_fd != -1) {
             bytes_read = read_until(listen_fd, command.buf, BUFF_SIZE, "\r\n\r\n");  // ADD ERROR CHECK HERE
             command.buf[BUFF_SIZE] = 0;
+            command.bytes_read = bytes_read;
 
             //command.request_line = command.buf;
             strcpy(command.request_line, command.buf);
 
             // ststr + 4 for msg_body
+            /*
             write_all(sock_fd, strstr(command.buf, "\r\n\r\n") + 4, (command.buf + bytes_read) - (strstr(command.buf, "\r\n\r\n")+4));
             // if bytes_read >= BUFF_SIZE{ pass_bytes(clint, src)}
 
@@ -62,7 +64,7 @@ int main(int argc, char **argv) {
             printf("db: %d\n", bytes_read);
 
 
-            /*
+
 			// FIGURE OUT WHAT WILL NEED TO HAPPEN HERE
 
 			if (bytes_read == -1) { // RETURN internal server error code here
@@ -76,6 +78,7 @@ int main(int argc, char **argv) {
             // want to send thus buffer to a seperate file that
             // parses using regex
 
+/*
             printf("%d\n", bytes_read);
 
             printf("buf, %s\n", command.buf);
@@ -83,7 +86,10 @@ int main(int argc, char **argv) {
             
             request_parse(&command);
             printf("DB!!!!\n");
-            //content_len(&command);
+            if (strcmp("PUT", command.method) == 0) {
+                content_len(&command);
+            }
+
             printf("ANOTHA\n");
                         printf("db buf,\n%s\n", command.buf);
 
@@ -98,6 +104,7 @@ int main(int argc, char **argv) {
 
 
             printf("TEST: %s\n", command.request_line);
+            */
 			// READ message body
             /*
             if (strcmp(command.method, "PUT") == 0) {
@@ -135,7 +142,9 @@ int main(int argc, char **argv) {
 			// 	break;
 			// }
 
-            printf("db");
+        //    printf("db");
+        
+            request_parse(&command);
             request_handler(&command);
 			
 			close(listen_fd);

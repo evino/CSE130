@@ -20,7 +20,7 @@
 int status = 0; // WILL HAVE TO ASSIGN FOR EACH POSSIBLE STATUS
 //Command* request_parse(Command *com) {
 void request_parse(Command *com) {
-    printf("in reg: %s\n------", com->buf);
+    // printf("in reg: %s\n------", com->buf);
     regex_t re;
     regmatch_t matches[5];
     int rc;
@@ -73,6 +73,7 @@ void request_parse(Command *com) {
     }
 
     regfree(&re);
+    /*
     if (com->status == BAD_REQUEST) {
         printf("SHOULD PRINT A BAD REQUEST here\n");
     } else {
@@ -81,9 +82,9 @@ void request_parse(Command *com) {
         printf("URI: %s\n", com->URI);
         printf("version: %s\n", com->version);
         printf("header: %s\n", com->header_field);
-    }
+    } */
 
-
+    
     //printf("db: %s\n", matches[0]);
     // DEBUG PRINTS
 
