@@ -9,7 +9,7 @@ void not_imp(Command *com) {
 }
 
 void not_sup(Command *com) {
-    write_all(com->client_fd, "HTTP/1.1 501 Version Not Supported\r\nContent-Length: 22\r\n\r\nVersion Not Supported\n", strlen("HTTP/1.1 501 Version Not Supported\r\nContent-Length: 22\r\n\r\nVersion Not Supported\n"));
+    write_all(com->client_fd, "HTTP/1.1 505 Version Not Supported\r\nContent-Length: 22\r\n\r\nVersion Not Supported\n", strlen("HTTP/1.1 501 Version Not Supported\r\nContent-Length: 22\r\n\r\nVersion Not Supported\n"));
 }
 
 void not_found(Command *com) {
