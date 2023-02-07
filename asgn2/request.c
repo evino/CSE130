@@ -2,6 +2,25 @@
 #include "response.h"
 
 
+int file_check(Command *com) {
+    int fd = open(com->URI, O_RDONLY);
+
+    // Checks if file exists
+    if (fd == -1) {
+        return -1;
+    }
+    struct stat fileCheck = { 0 };
+    fstat(fd, &fileCheck);
+
+    if (S_ISREG(fileCheck.st_mode) == 0) {
+        return -2;
+    }
+
+    com->file_size = fileCheck.st_size;
+
+    return fd;
+}
+
 
 void request_handler(Command *com) {
 
@@ -12,13 +31,36 @@ void request_handler(Command *com) {
         //close(com->client_fd);
     }
 
-    if (strcmp("GET", com->method) == 0) {
+    if (strcmp("HTTP/1.1", com->version) != 0) {
+        com->status = Version_Not_Supported;
+        not_sup(com);
+        return;
+    }
 
+    if (strcmp("GET", com->method) == 0) {
+        int fd = file_check(com);
+        if (fd == -1) {
+            not_found(com);
+            return;
+        } else if (fd == -2) {
+            forbid(com);
+            return;
+        }
+        com->status = 200;
+        get_response(com, fd);
+        return;
+            // int passed;
+            // do {
+            //     passed = pass_bytes(fd, com->client_fd, BUFF_SIZE);
+            // } while (passed == BUFF_SIZE);
     } else if (strcmp("PUT", com->method) == 0) {
 
     } else {
         com->status = Not_Implemented;
         not_imp(com);
+        return;
         //status_phrase = "Not Implemented\r\n";
     }
+
+
 }
