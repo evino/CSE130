@@ -1,11 +1,13 @@
 #include "response.h"
 
 void bad_req(Command *com) {
+    com->status = BAD_REQUEST;
     write_all(com->client_fd, "HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n",
         strlen("HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n"));
 }
 
 void not_imp(Command *com) {
+    com->status = Not_Implemented;
     write_all(com->client_fd,
         "HTTP/1.1 501 Not Implemented\r\nContent-Length: 16\r\n\r\nNot Implemented\n",
         strlen("HTTP/1.1 501 Not Implemented\r\nContent-Length: 16\r\n\r\nNot Implemented\n"));
@@ -51,15 +53,13 @@ void get_response(Command *com, int fd) {
 }
 
 void put_response(Command *com, int fd) {
-    write_all(fd, strstr(com->buf, "\r\n\r\n") + 4,
-        (com->buf + com->bytes_read) - strstr(com->buf, "\r\n\r\n") + 4);
+
+    write_all(fd, strstr(com->buf, "\r\n\r\n") + 4, com->length);
 
     int passed;
     do {
         passed = pass_bytes(com->client_fd, fd, BUFF_SIZE);
     } while (passed == BUFF_SIZE);
-
-    //write_all(com->client_fd, "\0", 1);
 
     char response[BUFF_SIZE];
     int spf = sprintf(response, "%s %d %s\r\nContent-Length: %lu\r\n\r\n%s\n", com->version,

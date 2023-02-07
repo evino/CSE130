@@ -56,65 +56,14 @@ void request_parse(Command *com) {
         com->header_field = com->request_line + matches[4].rm_so;
         com->header_field[matches[4].rm_eo - matches[4].rm_so] = '\0';
 
-        com->status = 200; // CHANGE THIS LATER!!
+        com->status = 200;
 
-        //   com->method = &REQUEST_REGEX[matches[1].rm_so];// - matches[1].rm_so;
-        //com->method[matches[1].rm_eo] = '\0';  // NEED TO FIGURE OUT WHY method is NULL
     } else {
-        //badRequest = true;
-        //com->status = 400;
-        //status = status_codes.BAD_REQUEST;
         com->status = BAD_REQUEST;
     }
 
     regfree(&re);
-    /*
-    if (com->status == BAD_REQUEST) {
-        printf("SHOULD PRINT A BAD REQUEST here\n");
-    } else {
-        printf("BUFFER: %s\n", com->buf);
-        printf("method: %s\n", com->method);
-        printf("URI: %s\n", com->URI);
-        printf("version: %s\n", com->version);
-        printf("header: %s\n", com->header_field);
-    } */
-
-    //printf("db: %s\n", matches[0]);
-    // DEBUG PRINTS
-
-    //return com;
 }
-// CALL REGFREE
-
-/*
-void header_parse(Command *com) {
-    regex_t re;
-    regmatch_t matches[3];
-    int rc;
-
-    rc = regcomp(&re, HEADER_REGEX, REG_EXTENDED);
-    assert(!rc);
-
-    rc = regexec(&re, (char *) com->buf, 3, matches, 0);
-
-    if (rc == 0) {
-        com->header_field = com->buf;
-
-        com->key = com->buf + matches[1].rm_so;
-        com->key[matches[1].rm_eo - matches[1].rm_so] = '\0';
-
-        com->value = com->buf + matches[2].rm_so;
-        com->value[matches[2].rm_eo - matches[2].rm_so] = '\0';
-    } else {
-        printf("DB, header no match for now\n");
-    }
-
-
-    regfree(&re);
-    printf("key: %s\n", com->key);
-    printf("val: %s\n", com->value);
-}
-*/
 
 void content_len(Command *com) {
     regex_t re;

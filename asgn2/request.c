@@ -23,10 +23,8 @@ int file_check(Command *com) {
 void request_handler(Command *com) {
 
     if (com->status == BAD_REQUEST) {
-        //write_all(client_fd, "HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n", strlen("HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n"));
         bad_req(com);
         return;
-        //close(com->client_fd);
     }
 
     if (strcmp("HTTP/1.1", com->version) != 0) {
@@ -48,17 +46,11 @@ void request_handler(Command *com) {
         get_response(com, fd);
         close(fd);
         return;
-        // int passed;
-        // do {
-        //     passed = pass_bytes(fd, com->client_fd, BUFF_SIZE);
-        // } while (passed == BUFF_SIZE);
     } else if (strcmp("PUT", com->method) == 0) {
-        // content_len(com);
+        content_len(com);
         int fd = open(com->URI, O_RDWR | O_TRUNC);
         if (fd == -1) {
-            //fd = creat(com->URI, S_IRWXG)
-            fd = creat(
-                com->URI, 0777); // Let's see if if this gets rid of file being seen as executable
+            fd = creat(com->URI, 0777);
             com->phrase = "Created";
             com->status = Created;
         } else {
@@ -70,17 +62,9 @@ void request_handler(Command *com) {
         close(fd);
         return;
 
-        // write_all(fd, strstr(com->buf, "\r\n\r\n") + 4, (com->buf + com->bytes_read) - strstr(com->buf, "\r\n\r\n") + 4);
-        // int passed;
-        // do {
-        //     passed = pass_bytes(com->client_fd, fd, BUFF_SIZE);
-        // } while (passed == BUFF_SIZE);
-
-        //write(com->client_fd, phrase, strlen(phrase));
     } else {
         com->status = Not_Implemented;
         not_imp(com);
         return;
-        //status_phrase = "Not Implemented\r\n";
     }
 }
