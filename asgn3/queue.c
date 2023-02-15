@@ -58,6 +58,18 @@ queue_t *queue_new(int size) {
 // POP() till empty
 // Then call free() on queue itself
 
+void queue_delete(queue_t **q) {
+    assert(q != NULL || *q != NULL);
+
+    void **e;
+    while ((*q)->count > 0) {
+        queue_pop(*q, (void **)&e);
+    }
+
+    free((*q)->arr);
+    free(*q);
+    *q = NULL;
+}
 
 
 bool queue_push(queue_t *q, void *elem) {
