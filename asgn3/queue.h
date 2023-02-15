@@ -62,5 +62,3 @@ bool queue_push(queue_t *q, void *elem);
  */
 bool queue_pop(queue_t *q, void **elem);
 
-
-int getCount(queue_t *q);
