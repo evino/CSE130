@@ -15,10 +15,10 @@ typedef struct {
     pthread_mutex_t mutex_pop;
 
     void **arr;
-} queue; // Need queue here?
+} queue;// Need queue here?
 
 queue_t *queue_new(int size) {
-    queue *q = malloc(sizeof(queue));
+    queue_t *q = malloc(sizeof(queue));
     q->length = 0;
     q->front = 0;
     q->rear = 0;
