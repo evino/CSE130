@@ -68,16 +68,20 @@ void queue_delete(queue_t **q) {
         queue_pop(*q, (void **)&e);
     }
 
-    free((*q)->arr);
-    free(*q);
-    *q = NULL;
 
-    
+
+    printf("DB1\n");
     pthread_mutex_destroy(&((*q)->mutex_push));
+    printf("DB2\n");
+
     pthread_mutex_destroy(&((*q)->mutex_pop));
 
     pthread_cond_destroy(&((*q)->push_cv));
     pthread_cond_destroy(&((*q)->pop_cv));
+
+    free((*q)->arr);
+    free(*q);
+    *q = NULL;
 
     return;
 }
