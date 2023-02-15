@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <assert.h>
 
+#include <stdio.h>
+
 #include "queue.h"
 
 struct queue{
@@ -69,6 +71,15 @@ void queue_delete(queue_t **q) {
     free((*q)->arr);
     free(*q);
     *q = NULL;
+
+    
+    pthread_mutex_destroy(&((*q)->mutex_push));
+    pthread_mutex_destroy(&((*q)->mutex_pop));
+
+    pthread_cond_destroy(&((*q)->push_cv));
+    pthread_cond_destroy(&((*q)->pop_cv));
+
+    return;
 }
 
 
@@ -110,7 +121,7 @@ bool queue_pop(queue_t *q, void **elem) {
 
     pthread_mutex_unlock(&q->mutex_pop);
 
-    pthread_cond_signal(&q->pop_cv);
+    pthread_cond_signal(&q->push_cv);
 
     return true;
 }
