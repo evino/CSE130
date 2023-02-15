@@ -11,4 +11,7 @@ queue.o: queue.c
 
 clean:
 	rm -f queue.o
-	
+
+
+format:
+	clang-format -i -style=file queue.c
