@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <pthread.h>
 #include "queue.h"
 
@@ -12,9 +13,10 @@ typedef struct {
     pthread_mutex_t mutex_pop;
 
     void **arr;
-} queue_t; // Need queue here?
+} queue; // Need queue here?
 
 
 queue_t *queue_new(int size) {
-    
+    //queue_t q = malloc(sizeof(queue_t));
+
 }
