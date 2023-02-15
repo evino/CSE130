@@ -4,16 +4,24 @@ CFLAGS = -Wall -Wextra -Werror -Wpedantic -pthread
 QUEUE_OBJS = queue.o
 HEADERS = queue.h
 
+
+
 queue.o: queue.c
+	$(CC) $(CFLAGS) -c queue.c
+
+test: test.o queue.o
+	$(CC) $(CFLAGS) -o test test.o queue.o
+
+%.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
 
-test: queue.o test.o
-	$(CC) $(CFLAGS) -o queue test.o
+# test: queue.o test.o
+# 	$(CC) $(CFLAGS) -o queue test.o
 
 
-test.o: test.c queue.c
-	$(CC) $(CFLAGS) -c $<
+# test.o: test.c queue.c
+# 	$(CC) $(CFLAGS) -c $<
 
 
 
@@ -24,7 +32,7 @@ test.o: test.c queue.c
 
 
 clean:
-	rm -f queue.o test.o queue
+	rm -f queue.o queue test.o test
 
 
 format:
