@@ -2,7 +2,6 @@
 #include <pthread.h>
 #include "queue.h"
 
-
 typedef struct {
     int length;
 
@@ -17,7 +16,6 @@ typedef struct {
 
     void **arr;
 } queue; // Need queue here?
-
 
 queue_t *queue_new(int size) {
     queue *q = malloc(sizeof(queue));
