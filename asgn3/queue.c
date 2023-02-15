@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include "queue.h"
 
-typedef struct {
+typedef struct queue{
     int length;
 
     int front;
@@ -15,10 +15,12 @@ typedef struct {
     pthread_mutex_t mutex_pop;
 
     void **arr;
-} queue;// Need queue here?
+} queue_t;// Need queue here?
+
+// typedef queue queue_t;
 
 queue_t *queue_new(int size) {
-    queue_t *q = malloc(sizeof(queue));
+    queue_t *q = malloc(sizeof(queue_t));
     q->length = 0;
     q->front = 0;
     q->rear = 0;
