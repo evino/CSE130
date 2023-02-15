@@ -25,6 +25,8 @@ int main() {
     queue_pop(myQueue, (void **)&r);
     printf("%d\n", getCount(myQueue));
 
+    queue_delete(&myQueue);
+
 
 
     return 0;
