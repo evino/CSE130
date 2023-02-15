@@ -8,8 +8,8 @@ struct queue{
     int count;
     int size;
 
-    int front;
-    int rear;
+    int in;
+    int out;
 
     // int push_rc;
     // int pop_rc;
@@ -32,8 +32,8 @@ queue_t *queue_new(int size) {
     q->count = 0;
     q->size = size;
 
-    q->front = 0;
-    q->rear = 0;
+    q->in = 0;
+    q->out = 0;
 
     q->arr = malloc(size * sizeof(void *));
 
@@ -68,9 +68,41 @@ bool queue_push(queue_t *q, void *elem) {
     while (q->count == q->size) {
         pthread_cond_wait(&(q->push_cv), &(q->mutex_push));
     }
-    q->arr[q->front] = elem;
-    q->front = (q->front + 1) % q->size;
+
+    pthread_mutex_lock(&q->mutex_push);
+
+    q->arr[q->in] = elem;
+    q->in = (q->in + 1) % q->size;
     q->count += 1;
 
+    pthread_mutex_unlock(&q->mutex_push);
+
+    pthread_cond_signal(&q->pop_cv);
     return true;
+}
+
+bool queue_pop(queue_t *q, void **elem) {
+    if (q == NULL) {
+        return false;
+    }
+
+    while (q->count == 0) {
+        pthread_cond_wait(&q->pop_cv, &q->mutex_pop);
+    }
+
+    pthread_mutex_lock(&q->mutex_pop);
+
+    *elem = q->arr[q->out];
+    q->out = (q->out + 1) % q->size;
+    q->count -= 1;
+
+    pthread_mutex_unlock(&q->mutex_pop);
+
+    pthread_cond_signal(&q->pop_cv);
+
+    return true;
+}
+
+int getCount(queue_t *q) {  // FOR DEBUG. REMOVE WHEN DONE
+    return q->count;
 }
