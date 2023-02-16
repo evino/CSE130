@@ -42,11 +42,6 @@ queue_t *queue_new(int size) {
 void queue_delete(queue_t **q) {
     assert(q != NULL || *q != NULL);
 
-    void **e;
-    while ((*q)->count > 0) {
-        queue_pop(*q, (void **) &e);
-    }
-
     pthread_mutex_destroy(&((*q)->mutex_push));
     pthread_mutex_destroy(&((*q)->mutex_pop));
 
