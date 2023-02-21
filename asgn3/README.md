@@ -4,11 +4,14 @@ This directory contains source code and other files for Assignment 3.
 
 ## Files:
     1. queue.h
-        - Queue function prototypes
+        - Queue function prototypes.
     2. queue.c
-        - Contains implementation of queue functions
+        - Contains implementation of queue functions. Supports
+        multithreading.
     3. Makefile
-        - Makefile used to simplify compilation process
+        - Makefile used to simplify compilation process.
+    4. README.md
+        - Documentation of files included in directory.
 
 ## Design:
 The design for this assignment was fairly straightforward. The queue
