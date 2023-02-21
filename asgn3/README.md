@@ -1,6 +1,28 @@
-#Assignment 3 directory
+# Assignment 3 directory
 
 This directory contains source code and other files for Assignment 3.
 
-Use this README document to store notes about design, testing, and
-questions you have while developing your assignment.
+## Files:
+    1. queue.h
+        - Queue function prototypes
+    2. queue.c
+        - Contains implementation of queue functions
+    3. Makefile
+        - Makefile used to simplify compilation process
+
+## Design:
+The design for this assignment was fairly straightforward. The queue
+was implemented using a dynamically allocated array that holds void
+pointers. An array was used rather than a linked-list, since its more
+memory efficient.
+
+I used locks for my threading primitive, since I find them more
+intuitive than semaphores. I also had to use condition variables in
+conjunction with the locks. This is to prevent busy-waits when
+blocking on a `PUSH()` to a full queue, or a `POP()` from an empty
+queue.
+
+### Compilation:
+Using the Makefile, the user will compile the `queue.c` file into
+an object file, named `queue.o`. This object file must be linked
+with another program supplied by the user.
