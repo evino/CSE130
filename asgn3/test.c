@@ -4,7 +4,7 @@
 #include "queue.h"
 
 int main() {
-    // pthread_t t1;
+    pthread_t t1;
 
 
     queue_t *myQueue = queue_new(15);
@@ -18,15 +18,14 @@ int main() {
     // queueArgs.q = myQueue;
 
     // pthread_create(&t1, NULL, queue_push, [myQueue, (void*)x]);
-    printf("%d\n", getCount(myQueue));
     queue_push(myQueue, (void *)&x);
-    printf("%d\n", getCount(myQueue));
     uintptr_t r;
     queue_pop(myQueue, (void **)&r);
-    printf("%d\n", getCount(myQueue));
+    // queue_pop(myQueue, (void **)&r);
+
+    // queue_push(myQueue, (void*)&x);
 
     queue_delete(&myQueue);
-
 
 
     return 0;
