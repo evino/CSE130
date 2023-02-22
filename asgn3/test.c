@@ -3,31 +3,32 @@
 
 #include "queue.h"
 
+#define queue_size 5
+
+typedef struct {
+    queue_t *q;
+    void *elem;
+} Push_Args;
+
+void *push(void *args) {
+    queue_push((queue_t *)args->q, (void *)args->elem);
+    return NULL;
+}
+
 int main() {
+    queue_t *queue = queue_new(queue_size);
+    if (queue == NULL) {
+        return 1;
+    }
+
     pthread_t t1;
 
+    Push_Args *t1_arg;
+    t1_arg->q = queue;
+    uintptr_t x = 15;
+    t1_arg->elem = &x;
 
-    queue_t *myQueue = queue_new(15);
+    pthread_create(&t1, NULL, push, (void *)t1_arg);
 
-    uintptr_t x = 4;
-    // typedef struct {
-    //     queue_t *q;
-    //     void *elem;
-    // } args;
-    // args queueArgs;
-    // queueArgs.q = myQueue;
-
-    // pthread_create(&t1, NULL, queue_push, [myQueue, (void*)x]);
-    queue_push(myQueue, (void *)&x);
-    uintptr_t r;
-    queue_pop(myQueue, (void **)&r);
-    // queue_pop(myQueue, (void **)&r);
-
-    // queue_push(myQueue, (void*)&x);
-
-    queue_delete(&myQueue);
-
-
-    return 0;
 
 }
