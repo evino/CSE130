@@ -28,7 +28,7 @@ int main() {
     uintptr_t x = 15;
     t1_arg->elem = &x;
 
-    pthread_create(&t1, NULL, push, (void *)t1_arg);
+    pthread_create(&t1, NULL, push, (void *)&t1_arg);
 
 
 }
