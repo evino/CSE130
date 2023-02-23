@@ -1,11 +1,14 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <assert.h>
+#include <semaphore.h>
 
 #include "queue.h"
 
 struct queue {
-    int count;
+    // int count;
+    sem_t countSem;
+
     int size;
 
     int in;
@@ -22,7 +25,11 @@ struct queue {
 
 queue_t *queue_new(int size) {
     queue_t *q = malloc(sizeof(queue_t));
-    q->count = 0;
+    // q->count = 0;
+    assert(!(sem_init(&q->countSem, 0, 0)));
+
+
+
     q->size = size;
 
     q->in = 0;
@@ -48,6 +55,10 @@ void queue_delete(queue_t **q) {
     pthread_cond_destroy(&((*q)->push_cv));
     pthread_cond_destroy(&((*q)->pop_cv));
 
+    sem_destroy(&(*q)->countSem);
+
+    // DESTROY SEM!!!
+
     free((*q)->arr);
     free(*q);
     *q = NULL;
@@ -60,15 +71,20 @@ bool queue_push(queue_t *q, void *elem) {
         return false;
     }
 
-    while (q->count == q->size) {
-        pthread_cond_wait(&(q->push_cv), &(q->mutex_push));
-    }
 
     pthread_mutex_lock(&q->mutex_push);
 
+    int count = -999;
+    // assert(!(sem_getvalue(&q->countSem, &count)));
+    sem_getvalue(&q->countSem, &count);
+    while (count == q->size) {
+        pthread_cond_wait(&(q->push_cv), &(q->mutex_push));
+    }
+
     q->arr[q->in] = elem;
     q->in = (q->in + 1) % q->size;
-    q->count += 1;
+    // q->count += 1;
+    sem_post(&q->countSem);
 
     pthread_mutex_unlock(&q->mutex_push);
     pthread_cond_signal(&q->pop_cv);
@@ -81,15 +97,22 @@ bool queue_pop(queue_t *q, void **elem) {
         return false;
     }
 
-    while (q->count == 0) {
-        pthread_cond_wait(&q->pop_cv, &q->mutex_pop);
-    }
+
 
     pthread_mutex_lock(&q->mutex_pop);
 
+    int count = -999;
+    // assert(!(sem_getvalue(&q->countSem, &count)));
+    sem_getvalue(&(q->countSem), &count);
+
+    while (count == 0) {
+        pthread_cond_wait(&q->pop_cv, &q->mutex_pop);
+    }
+
     *elem = q->arr[q->out];
     q->out = (q->out + 1) % q->size;
-    q->count -= 1;
+    sem_wait(&q->countSem);
+    // q->count -= 1;
 
     pthread_mutex_unlock(&q->mutex_pop);
     pthread_cond_signal(&q->push_cv);
