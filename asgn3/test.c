@@ -11,7 +11,8 @@ typedef struct {
 } Push_Args;
 
 void *push(void *args) {
-    queue_push((queue_t *)args->q, (void *)args->elem);
+    Push_Args *pushInfo = args;
+    queue_push(pushInfo->q, pushInfo->elem);
     return NULL;
 }
 
