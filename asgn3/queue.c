@@ -6,18 +6,16 @@
 #include "queue.h"
 
 struct queue {
-    // int count;
-    sem_t countSem;
-
+    int count;
     int size;
-
     int in;
     int out;
 
     pthread_mutex_t mutex_push;
     pthread_mutex_t mutex_pop;
+    pthread_mutex_t countMutex;
 
-    pthread_cond_t push_cv; // Might need seperate ones for push() & pop()
+    pthread_cond_t push_cv;
     pthread_cond_t pop_cv;
 
     void **arr;
@@ -25,10 +23,7 @@ struct queue {
 
 queue_t *queue_new(int size) {
     queue_t *q = malloc(sizeof(queue_t));
-    // q->count = 0;
-    assert(!(sem_init(&q->countSem, 0, 0)));
-
-
+    q->count = 0;
 
     q->size = size;
 
@@ -43,6 +38,8 @@ queue_t *queue_new(int size) {
     assert(!(pthread_cond_init(&(q->push_cv), NULL)));
     assert(!(pthread_cond_init(&(q->pop_cv), NULL)));
 
+    pthread_mutex_init(&q->countMutex, NULL);
+
     return q;
 }
 
@@ -51,13 +48,11 @@ void queue_delete(queue_t **q) {
 
     pthread_mutex_destroy(&((*q)->mutex_push));
     pthread_mutex_destroy(&((*q)->mutex_pop));
+    pthread_mutex_destroy(&(*q)->countMutex);
 
     pthread_cond_destroy(&((*q)->push_cv));
     pthread_cond_destroy(&((*q)->pop_cv));
 
-    sem_destroy(&(*q)->countSem);
-
-    // DESTROY SEM!!!
 
     free((*q)->arr);
     free(*q);
@@ -74,17 +69,20 @@ bool queue_push(queue_t *q, void *elem) {
 
     pthread_mutex_lock(&q->mutex_push);
 
-    int count = -999;
-    // assert(!(sem_getvalue(&q->countSem, &count)));
-    sem_getvalue(&q->countSem, &count);
-    while (count == q->size) {
+    while (q->count == q->size) {
         pthread_cond_wait(&(q->push_cv), &(q->mutex_push));
     }
 
     q->arr[q->in] = elem;
     q->in = (q->in + 1) % q->size;
-    // q->count += 1;
-    sem_post(&q->countSem);
+
+
+    // Ensuring count is atomic, i.e. calling PUSH() and
+    // POP() doesn't result in weird behavoir in the count.
+    pthread_mutex_lock(&q->countMutex);
+    q->count += 1;
+    pthread_mutex_unlock(&q->countMutex);
+
 
     pthread_mutex_unlock(&q->mutex_push);
     pthread_cond_signal(&q->pop_cv);
@@ -98,21 +96,22 @@ bool queue_pop(queue_t *q, void **elem) {
     }
 
 
-
     pthread_mutex_lock(&q->mutex_pop);
 
-    int count = -999;
-    // assert(!(sem_getvalue(&q->countSem, &count)));
-    sem_getvalue(&(q->countSem), &count);
-
-    while (count == 0) {
+    while (q->count == 0) {
         pthread_cond_wait(&q->pop_cv, &q->mutex_pop);
     }
 
     *elem = q->arr[q->out];
     q->out = (q->out + 1) % q->size;
-    sem_wait(&q->countSem);
-    // q->count -= 1;
+
+
+    // Ensuring count is atomic, i.e. calling PUSH() and
+    // POP() doesn't result in weird behavoir in the count.
+    pthread_mutex_lock(&q->countMutex);
+    q->count -= 1;
+    pthread_mutex_unlock(&q->countMutex);
+
 
     pthread_mutex_unlock(&q->mutex_pop);
     pthread_cond_signal(&q->push_cv);
