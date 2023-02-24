@@ -23,6 +23,11 @@ struct queue {
 };
 
 queue_t *queue_new(int size) {
+
+    if (size <= 0) {
+        return false;
+    }
+
     queue_t *q = malloc(sizeof(queue_t));
     q->count = 0;
 
