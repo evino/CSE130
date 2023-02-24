@@ -25,7 +25,14 @@ conjunction with the locks. This is to prevent busy-waits when
 blocking on a `PUSH()` to a full queue, or a `POP()` from an empty
 queue.
 
+Three mutexes are being used. One for `PUSH()`, one for `POP()`,
+and one to keep my count increment/decrement atomic.
+
+Two conditional variables are also being used. One for `PUSH()`
+and one for `POP()`.
+
 ### Compilation:
 Using the Makefile, the user will compile the `queue.c` file into
-an object file, named `queue.o`. This object file must be linked
-with another program supplied by the user.
+an object file, named `queue.o`, by entering `make` into the
+command line. This object file must be linked with another program
+supplied by the user.
