@@ -8,7 +8,7 @@
 struct queue {
     int count;
     int size;
-    
+
     int in;
     int out;
 
@@ -54,7 +54,6 @@ void queue_delete(queue_t **q) {
     pthread_cond_destroy(&((*q)->push_cv));
     pthread_cond_destroy(&((*q)->pop_cv));
 
-
     free((*q)->arr);
     free(*q);
     *q = NULL;
@@ -67,7 +66,6 @@ bool queue_push(queue_t *q, void *elem) {
         return false;
     }
 
-
     pthread_mutex_lock(&q->mutex_push);
 
     while (q->count == q->size) {
@@ -77,13 +75,11 @@ bool queue_push(queue_t *q, void *elem) {
     q->arr[q->in] = elem;
     q->in = (q->in + 1) % q->size;
 
-
     // Ensuring count is atomic, i.e. calling PUSH() and
     // POP() doesn't result in weird behavoir in the count.
     pthread_mutex_lock(&q->countMutex);
     q->count += 1;
     pthread_mutex_unlock(&q->countMutex);
-
 
     pthread_mutex_unlock(&q->mutex_push);
     pthread_cond_signal(&q->pop_cv);
@@ -96,7 +92,6 @@ bool queue_pop(queue_t *q, void **elem) {
         return false;
     }
 
-
     pthread_mutex_lock(&q->mutex_pop);
 
     while (q->count == 0) {
@@ -106,13 +101,11 @@ bool queue_pop(queue_t *q, void **elem) {
     *elem = q->arr[q->out];
     q->out = (q->out + 1) % q->size;
 
-
     // Ensuring count is atomic, i.e. calling PUSH() and
     // POP() doesn't result in weird behavoir in the count.
     pthread_mutex_lock(&q->countMutex);
     q->count -= 1;
     pthread_mutex_unlock(&q->countMutex);
-
 
     pthread_mutex_unlock(&q->mutex_pop);
     pthread_cond_signal(&q->push_cv);
