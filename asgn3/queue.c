@@ -8,6 +8,7 @@
 struct queue {
     int count;
     int size;
+    
     int in;
     int out;
 
