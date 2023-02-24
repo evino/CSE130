@@ -23,4 +23,4 @@ clean:
 
 
 format:
-	clang-format -i -style=file queue.c queue.h
+	clang-format -i -style=file queue.c queue.h test.c
