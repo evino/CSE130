@@ -6,10 +6,10 @@
 
 #define queue_size 5
 
-struct Push_Args {
+typedef struct Push_Args {
     queue_t *q;
     void *elem;
-};
+} Push_Args;
 
 struct Pop_Args {
     queue_t *q;
@@ -17,51 +17,53 @@ struct Pop_Args {
 };
 
 void *push(void *args) {
-    struct Push_Args *pushArgs = (struct Push_Args *)args;
+    Push_Args *pushArgs = (Push_Args *) args;
 
     // queue_t *q = pushArgs->q;
+    if (pushArgs->q == NULL) {
+        fprintf(stderr, "IT'S NULL BRUH\n");
+    }
 
-    fprintf(stderr, "%lu\n", (uintptr_t)pushArgs->elem);
-            fprintf(stderr, "db\n");
+    fprintf(stderr, "%lu\n", (uintptr_t) pushArgs->elem);
+    fprintf(stderr, "db\n");
     // uintptr_t intgr = (uintptr_t)pushArgs->elem;
 
-    queue_push(pushArgs->q, pushArgs->elem);
+    queue_push(pushArgs->q, (void *) pushArgs->elem);
 
-
-    // struct Push_Args *pushInfo = args;
-    //queue_push(pushInfo->q, pushInfo->elem);
-    // (Push_Args *)args;
-    // queue_push(((Push_Args *)args)->q, (void *)((Push_Args *)args)->elem);
     fprintf(stderr, "db2\n");
+
     return NULL;
 }
 
-
 void *pop(void *args) {
-    struct Pop_Args *popArgs = (struct Pop_Args *)args;
+    struct Pop_Args *popArgs = (struct Pop_Args *) args;
 
-    queue_pop(popArgs->q, (void *)(popArgs->elem));
+    queue_pop(popArgs->q, (void *) (popArgs->elem));
 
     return NULL;
 }
 
 int main() {
-    queue_t *myQueue = queue_new(queue_size);
+    int sz = 3;
+    queue_t *myQueue = queue_new(sz);
+
     if (myQueue == NULL) {
         return 1;
+    } else {
+        fprintf(stderr, "Queue made\n");
     }
-
 
     uintptr_t one = 1;
     // struct Push_Args *t1_arg = {myQueue, &x};
     struct Push_Args *t1_arg = malloc(sizeof(t1_arg));
     t1_arg->q = myQueue;
-    t1_arg->elem = (void *)one;
+    t1_arg->elem = &one;
     // push((void *)t1_arg);
 
     // printf("%lu\n", (uintptr_t)t1_arg->elem);
     pthread_t t1;
-    pthread_create(&t1, NULL, push, (void *)&t1_arg);
+    pthread_create(&t1, NULL, push, (void *) &t1_arg);
+    fprintf(stderr, "thread made\n");
 
     void *rc;
     pthread_join(t1, &rc);
@@ -78,5 +80,6 @@ int main() {
 
     // pthread_create(&t1, NULL, push, (void *)&t1_arg);
 
-
+    fprintf(stderr, "EOF\n");
+    return 0;
 }
