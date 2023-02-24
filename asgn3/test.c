@@ -21,11 +21,12 @@ void *push(void *args) {
         fprintf(stderr, "NULL\n");
     }
 
-    fprintf(stderr, "Pushed: %lu\n", (uintptr_t)pushArgs->elem);
+    
     // fprintf(stderr, "db\n");
     // uintptr_t intgr = (uintptr_t)pushArgs->elem;
 
     queue_push(pushArgs->q, (void *) pushArgs->elem);
+    fprintf(stderr, "Pushed: %lu\n", (uintptr_t)pushArgs->elem);
 
 
     return NULL;
@@ -43,13 +44,10 @@ void *pop(void *args) {
 }
 
 int main() {
-    int sz = 3;
-    queue_t *myQueue = queue_new(sz);
+    queue_t *myQueue = queue_new(1);
 
     if (myQueue == NULL) {
         return 1;
-    } else {
-        fprintf(stderr, "Queue made\n");
     }
 
     uintptr_t one = 1;
@@ -71,15 +69,23 @@ int main() {
 
     pthread_t t1;
     pthread_create(&t1, NULL, push, (void *)t1_arg);
-    fprintf(stderr, "thread made\n");
 
-    void *rc;
+    pthread_t t3;
+    struct Push_Args *t3_arg = malloc(sizeof(t3_arg));
+    t3_arg->q = myQueue;
+    uintptr_t t = 3;
+    t3_arg->elem = (void*)t;
+    pthread_create(&t3, NULL, push, (void*)t3_arg);
+
+
+    void *rc1;
     void *rc2;
+    void *rc3;
     pthread_join(t2, &rc2);
 
 
-    pthread_join(t1, &rc);
-
+    pthread_join(t1, &rc1);
+    pthread_join(t3,&rc3);
 
     // uintptr_t two = 2;
     // struct Push_Args *t2_arg = malloc(sizeof(t2_arg));
