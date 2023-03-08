@@ -84,7 +84,6 @@ int main() {
     pthread_join(t1, &rc1);
     pthread_join(t3, &rc3);
 
-
     // uintptr_t two = 2;
     // struct Push_Args *t2_arg = malloc(sizeof(t2_arg));
     // t2_arg->q = myQueue;
