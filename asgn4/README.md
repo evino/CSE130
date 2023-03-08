@@ -1,6 +1,8 @@
-#Assignment 4 directory
-
-This directory contains source code and other files for Assignment 4.
-
-Use this README document to store notes about design, testing, and
-questions you have while developing your assignment.
+# Phase 1: Initial Design
+My current plan is to have `main()` function act as my dispatcher.
+It will loop, and `PUSH()` each connection file descriptor (`connfd`)
+onto a bounded-buffer (queue).There will be a function for the worker
+threads (might need to create thread in this function) that calls `POP()`
+on the queue, which will return the `connfd`. `handle_connection()` will
+then be called on `connfd`. Phase 1 will not support syncronization, but
+getting a basic multithreaded server is the goal.
