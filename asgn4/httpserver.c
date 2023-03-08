@@ -58,7 +58,6 @@ void handle_connection(int connfd) {
     conn_t *conn = conn_new(connfd);
 
     const Response_t *res = conn_parse(conn);
-    // write(connfd, "db\n", strlen("db\n"));
     
     dprintf(connfd, "db1\n");
 
@@ -72,7 +71,7 @@ void handle_connection(int connfd) {
         if (req == &REQUEST_GET) {
             handle_get(conn);
         } else if (req == &REQUEST_PUT) {
-            handle_put(conn, connfd);
+            handle_put(conn, connfd);  // connfd is for DEBUG!!!!
             dprintf(connfd, "db3\n");
         } else {
             handle_unsupported(conn);
@@ -118,7 +117,7 @@ void handle_unsupported(conn_t *conn) {
     conn_send_response(conn, &RESPONSE_NOT_IMPLEMENTED);
 }
 
-void handle_put(conn_t *conn, int connfd) {
+void handle_put(conn_t *conn, int connfd) {  // connfd is for DEBUG!!!!
 
     char *uri = conn_get_uri(conn);
     const Response_t *res = NULL;
@@ -153,8 +152,11 @@ void handle_put(conn_t *conn, int connfd) {
 
 out:
     conn_send_response(conn, res);
+
+
+    dprintf(connfd, "after send_resp\n");
     
     
     
-dprintf(connfd, "after send_resp\n");
+
 }
