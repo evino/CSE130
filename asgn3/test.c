@@ -24,6 +24,7 @@ void *push(void *args) {
     // fprintf(stderr, "db\n");
     // uintptr_t intgr = (uintptr_t)pushArgs->elem;
 
+    fprintf(stderr, "pusher called (%lu)\n", (uintptr_t) pushArgs->elem);
     queue_push(pushArgs->q, (void *) pushArgs->elem);
     fprintf(stderr, "Pushed: %lu\n", (uintptr_t) pushArgs->elem);
 
@@ -96,5 +97,7 @@ int main() {
     // pthread_create(&t1, NULL, push, (void *)&t1_arg);
 
     fprintf(stderr, "EOF\n");
+
+    queue_delete(&myQueue);
     return 0;
 }
