@@ -47,17 +47,9 @@ int main(int argc, char **argv) {
     }
 
 
-    
-
-
-
     signal(SIGPIPE, SIG_IGN);
     Listener_Socket sock;
     listener_init(&sock, port);
-
-    // void *fd;
-    // queue_pop(queue, (void *) &fd);
-    // printf("%lu\n", (uintptr_t) (fd));
 
 
     // Add in optional arg
@@ -70,17 +62,14 @@ int main(int argc, char **argv) {
     for (uintptr_t t = 0; t < thread_num; t++) {
         pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);
     }
-    // uintptr_t x = 55;
-    // queue_push(queue, (void *) x);
 
-    printf("before loop\n");
     while (1) {
         uintptr_t connfd = listener_accept(&sock);
         // MIGHT NEED TO ADD ERROR CHECK FOR VALID CONN
         queue_push(queue, (void *) connfd);
         // printf("GOing to call worker()\n");
-        // worker(queue);
         // handle_connection(connfd);
+        //worker(queue);
 
         // printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
         write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
@@ -96,15 +85,15 @@ int main(int argc, char **argv) {
 }
 
 void *worker(void *q) {
-    q = (queue_t *) q;
     printf("In worker\n");
+    q = (queue_t *) q;
     while (1) {
         // printf("DB1\n");
         void *connfd = NULL;
         queue_pop(q, (void *) &connfd);
         
         handle_connection((uintptr_t) connfd);
-        // printf("after handle\n");
+        printf("after handle\n");
     }
 
     return NULL;
