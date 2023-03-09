@@ -91,8 +91,8 @@ bool queue_push(queue_t *q, void *elem) {
     pthread_mutex_unlock(&q->countMutex);
 
     pthread_mutex_unlock(&q->mutex_push);
-    // pthread_cond_signal(&q->pop_cv);
-    pthread_cond_broadcast(&q->pop_cv);
+    pthread_cond_signal(&q->pop_cv);
+    // pthread_cond_broadcast(&q->pop_cv);
 
     printf("END OF PUSH\n");
     return true;
@@ -122,8 +122,8 @@ bool queue_pop(queue_t *q, void **elem) {
     pthread_mutex_unlock(&q->countMutex);
 
     pthread_mutex_unlock(&q->mutex_pop);
-    // pthread_cond_signal(&q->push_cv);
-    pthread_cond_broadcast(&q->push_cv);
+    pthread_cond_signal(&q->push_cv);
+    // pthread_cond_broadcast(&q->push_cv);
 
     return true;
 }
