@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
         printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
         write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
-        close(connfd);
+        // close(connfd);  WORKER CAN CLOSE
     }
 
 
