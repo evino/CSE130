@@ -27,7 +27,7 @@ void handle_get(conn_t *);
 void handle_put(conn_t *, int);
 void handle_unsupported(conn_t *);
 
-void worker(queue_t*);
+void worker(queue_t *);
 
 
 int main(int argc, char **argv) {
@@ -49,24 +49,29 @@ int main(int argc, char **argv) {
     // Add in optional arg
     uintptr_t thread_num = 4; // By default
     queue_t *queue = queue_new(thread_num);
-    uintptr_t x = 55;
-    queue_push(queue, (void *) x);
+
+    for (uintptr_t t = 0; t <= thread_num; t++) {
+        printf("%lu\n", t);
+    }
+    // uintptr_t x = 55;
+    // queue_push(queue, (void *) x);
 
 
     signal(SIGPIPE, SIG_IGN);
     Listener_Socket sock;
     listener_init(&sock, port);
 
-    void *fd;
-    queue_pop(queue, (void *) &fd);
-    printf("%lu\n", (uintptr_t) (fd));
-    uintptr_t *f = fd;
-    printf("%lu\n", *f);
+    // void *fd;
+    // queue_pop(queue, (void *) &fd);
+    // printf("%lu\n", (uintptr_t) (fd));
 
+    printf("before loop\n");
     while (1) {
-        int connfd = listener_accept(&sock);
-        //worker(queue);
-        handle_connection(connfd);
+        uintptr_t connfd = listener_accept(&sock);
+        queue_push(queue, (void *) connfd);
+        printf("GOing to call worker()\n");
+        worker(queue);
+        // handle_connection(connfd);
         close(connfd);
     }
 
@@ -74,12 +79,18 @@ int main(int argc, char **argv) {
 }
 
 void worker(queue_t *q) {
+    printf("In worker\n");
     while (1) {
-        int fd = 0;
-        queue_pop(q, (void **) &fd);
-        printf("%d\n", fd);
+        printf("DB2\n");
+        void *connfd = NULL;
+        queue_pop(q, (void *) &connfd);
+        
+        handle_connection((uintptr_t) connfd);
+        printf("after handle\n");
+        printf("DB:%lu\n", (uintptr_t) connfd);
     }
 
+    return;
 }
 
 void handle_connection(int connfd) {
