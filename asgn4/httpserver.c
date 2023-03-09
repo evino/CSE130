@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
 
     for (uintptr_t t = 0; t < thread_num; t++) {
-        pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);
+        pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);                                                                                                                   
     }
 
     while (1) {
@@ -94,6 +94,8 @@ void *worker(void *q) {
         
         handle_connection((uintptr_t) connfd);
         printf("after handle\n");
+
+        close((uintptr_t) connfd);
     }
 
     return NULL;
