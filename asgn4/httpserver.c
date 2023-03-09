@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
         // handle_connection(connfd);
         //worker(queue);
 
-        // printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
+        printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
         write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
         close(connfd);
     }
