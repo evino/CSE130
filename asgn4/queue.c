@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <semaphore.h>
 
+#include <stdio.h>
+
 #include "queue.h"
 
 struct queue {
@@ -77,6 +79,8 @@ bool queue_push(queue_t *q, void *elem) {
         pthread_cond_wait(&(q->push_cv), &(q->mutex_push));
     }
 
+    printf("PUSHING\n");
+
     q->arr[q->in] = elem;
     q->in = (q->in + 1) % q->size;
 
@@ -87,8 +91,10 @@ bool queue_push(queue_t *q, void *elem) {
     pthread_mutex_unlock(&q->countMutex);
 
     pthread_mutex_unlock(&q->mutex_push);
-    pthread_cond_signal(&q->pop_cv);
+    // pthread_cond_signal(&q->pop_cv);
+    pthread_cond_broadcast(&q->pop_cv);
 
+    printf("END OF PUSH\n");
     return true;
 }
 
@@ -100,8 +106,11 @@ bool queue_pop(queue_t *q, void **elem) {
     pthread_mutex_lock(&q->mutex_pop);
 
     while (q->count == 0) {
+        printf("Asleep\n");
         pthread_cond_wait(&q->pop_cv, &q->mutex_pop);
     }
+
+    printf("Awake\n");
 
     *elem = q->arr[q->out];
     q->out = (q->out + 1) % q->size;
@@ -113,7 +122,8 @@ bool queue_pop(queue_t *q, void **elem) {
     pthread_mutex_unlock(&q->countMutex);
 
     pthread_mutex_unlock(&q->mutex_pop);
-    pthread_cond_signal(&q->push_cv);
+    // pthread_cond_signal(&q->push_cv);
+    pthread_cond_broadcast(&q->push_cv);
 
     return true;
 }
