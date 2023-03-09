@@ -29,7 +29,7 @@ void handle_get(conn_t *);
 void handle_put(conn_t *, int);
 void handle_unsupported(conn_t *);
 
-void worker(queue_t *);
+void *worker(void *);
 
 
 int main(int argc, char **argv) {
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 }
 
 void *worker(void *q) {
-    q = (queue_t) q;
+    q = (queue_t *) q;
     printf("In worker\n");
     while (1) {
         printf("DB2\n");
