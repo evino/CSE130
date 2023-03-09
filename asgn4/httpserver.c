@@ -26,7 +26,7 @@
 void handle_connection(int);
 
 void handle_get(conn_t *);
-void handle_put(conn_t *, int);
+void handle_put(conn_t *);
 void handle_unsupported(conn_t *);
 
 void *worker(void *);
@@ -48,19 +48,7 @@ int main(int argc, char **argv) {
 
 
     
-    // Add in optional arg
-    uintptr_t thread_num = 4; // By default
-    queue_t *queue = queue_new(thread_num);
 
-    //pthread_t threads[thread_num];
-    pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
-
-    for (uintptr_t t = 0; t < thread_num; t++) {
-        //printf("%lu\n", t);
-        pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);
-    }
-    // uintptr_t x = 55;
-    // queue_push(queue, (void *) x);
 
 
     signal(SIGPIPE, SIG_IGN);
@@ -71,18 +59,36 @@ int main(int argc, char **argv) {
     // queue_pop(queue, (void *) &fd);
     // printf("%lu\n", (uintptr_t) (fd));
 
+
+    // Add in optional arg
+    uintptr_t thread_num = 4; // By default
+    queue_t *queue = queue_new(thread_num);
+
+    //pthread_t threads[thread_num];
+    pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
+
+    for (uintptr_t t = 0; t < thread_num; t++) {
+        pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);
+    }
+    // uintptr_t x = 55;
+    // queue_push(queue, (void *) x);
+
     printf("before loop\n");
     while (1) {
         uintptr_t connfd = listener_accept(&sock);
+        // MIGHT NEED TO ADD ERROR CHECK FOR VALID CONN
         queue_push(queue, (void *) connfd);
-        printf("GOing to call worker()\n");
-        worker(queue);
+        // printf("GOing to call worker()\n");
+        // worker(queue);
         // handle_connection(connfd);
+
+        // printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
+        write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
         close(connfd);
     }
 
 
-
+    queue_delete(&queue);
     free(threadArr);
     threadArr = NULL;
 
@@ -93,13 +99,12 @@ void *worker(void *q) {
     q = (queue_t *) q;
     printf("In worker\n");
     while (1) {
-        printf("DB2\n");
+        // printf("DB1\n");
         void *connfd = NULL;
         queue_pop(q, (void *) &connfd);
         
         handle_connection((uintptr_t) connfd);
-        printf("after handle\n");
-        printf("DB:%lu\n", (uintptr_t) connfd);
+        // printf("after handle\n");
     }
 
     return NULL;
@@ -123,7 +128,8 @@ void handle_connection(int connfd) {
         if (req == &REQUEST_GET) {
             handle_get(conn);
         } else if (req == &REQUEST_PUT) {
-            handle_put(conn, connfd);  // connfd is for DEBUG!!!!
+            printf("IS PUT REQ\n");
+            handle_put(conn);  // connfd is for DEBUG!!!!
             dprintf(connfd, "db3\n");
         } else {
             handle_unsupported(conn);
@@ -169,7 +175,7 @@ void handle_unsupported(conn_t *conn) {
     conn_send_response(conn, &RESPONSE_NOT_IMPLEMENTED);
 }
 
-void handle_put(conn_t *conn, int connfd) {  // connfd is for DEBUG!!!!
+void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
 
     char *uri = conn_get_uri(conn);
     const Response_t *res = NULL;
@@ -204,11 +210,7 @@ void handle_put(conn_t *conn, int connfd) {  // connfd is for DEBUG!!!!
 
 out:
     conn_send_response(conn, res);
-
-
-    dprintf(connfd, "after send_resp\n");
-    
-    
+        
     
 
 }
