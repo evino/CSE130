@@ -52,11 +52,12 @@ int main(int argc, char **argv) {
     uintptr_t thread_num = 4; // By default
     queue_t *queue = queue_new(thread_num);
 
-    pthread_t threads[thread_num];
+    //pthread_t threads[thread_num];
+    pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
 
     for (uintptr_t t = 0; t < thread_num; t++) {
         //printf("%lu\n", t);
-        pthread_create(&(threads[t]), NULL, worker, (void *) queue);
+        pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);
     }
     // uintptr_t x = 55;
     // queue_push(queue, (void *) x);
@@ -79,6 +80,11 @@ int main(int argc, char **argv) {
         // handle_connection(connfd);
         close(connfd);
     }
+
+
+
+    free(threadArr);
+    threadArr = NULL;
 
     return EXIT_SUCCESS;
 }
