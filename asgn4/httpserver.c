@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include <sys/stat.h>
+#include <sys/file.h>
 
 #include <pthread.h>
 
@@ -56,6 +57,7 @@ int main(int argc, char **argv) {
     uintptr_t thread_num = 4; // By default
     queue_t *queue = queue_new(thread_num);
 
+
     //pthread_t threads[thread_num];
     pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
 
@@ -65,6 +67,7 @@ int main(int argc, char **argv) {
 
     while (1) {
         uintptr_t connfd = listener_accept(&sock);
+
         // MIGHT NEED TO ADD ERROR CHECK FOR VALID CONN
         queue_push(queue, (void *) connfd);
         // printf("GOing to call worker()\n");
@@ -101,11 +104,24 @@ void *worker(void *q) {
     return NULL;
 }
 
+
+void audit()
+
 void handle_connection(int connfd) {
 
     conn_t *conn = conn_new(connfd);
 
     const Response_t *res = conn_parse(conn);
+
+    const Request_t *req = conn_get_request(conn);
+    const char *oper = request_get_str(req);  // Operation
+
+    flock(2, LOCK_EX);
+    fprintf(stderr, "DEBUG: %s, %s, %hu\r\n", oper, conn_get_uri(conn), response_get_code(res));
+    // fprintf(stderr, "DEBUG: %s\n", conn_get_header(conn, "Request-Id"));
+    flock(2, LOCK_UN);
+
+
     
     dprintf(connfd, "db1\n");
 
@@ -169,6 +185,7 @@ void handle_unsupported(conn_t *conn) {
 void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
 
     char *uri = conn_get_uri(conn);
+
     const Response_t *res = NULL;
     debug("handling put request for %s", uri);
 
@@ -201,7 +218,5 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
 
 out:
     conn_send_response(conn, res);
-        
-    
 
 }
