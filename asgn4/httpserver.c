@@ -32,6 +32,8 @@ void handle_unsupported(conn_t *);
 
 void *worker(void *);
 
+void audit(const char *oper, char *uri, uint16_t status_code, char *req_id);
+
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -105,7 +107,7 @@ void *worker(void *q) {
 }
 
 
-void audit()
+
 
 void handle_connection(int connfd) {
 
@@ -113,11 +115,11 @@ void handle_connection(int connfd) {
 
     const Response_t *res = conn_parse(conn);
 
-    const Request_t *req = conn_get_request(conn);
-    const char *oper = request_get_str(req);  // Operation
+    // const Request_t *req = conn_get_request(conn);
+    // const char *oper = request_get_str(req);  // Operation
 
     flock(2, LOCK_EX);
-    fprintf(stderr, "DEBUG: %s, %s, %hu\r\n", oper, conn_get_uri(conn), response_get_code(res));
+    //fprintf(stderr, "DEBUG: %s, %s, %hu\r\n", oper, conn_get_uri(conn), response_get_code(res));
     // fprintf(stderr, "DEBUG: %s\n", conn_get_header(conn, "Request-Id"));
     flock(2, LOCK_UN);
 
@@ -178,7 +180,22 @@ void handle_get(conn_t *conn) {
 void handle_unsupported(conn_t *conn) {
     debug("handling unsupported request");
 
+
+    const Request_t *req = conn_get_request(conn);
+
     // send responses
+    char *uri = conn_get_uri(conn);
+    const char *oper = request_get_str(req);
+
+    const Response_t *res = conn_parse(conn);
+
+
+    
+    //uint16_t statusCode = response_get_code(res);
+
+    audit(oper, uri, response_get_code(res), conn_get_header(conn, "Request-Id"));
+
+
     conn_send_response(conn, &RESPONSE_NOT_IMPLEMENTED);
 }
 
@@ -214,9 +231,29 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
         res = &RESPONSE_CREATED;
     }
 
+    const Request_t *req = conn_get_request(conn);
+    const char *oper = request_get_str(req);
+    uint16_t statusCode = response_get_code(res);
+    char *reqID = conn_get_header(conn, "Request-Id");
+
+    audit(oper, uri, statusCode, reqID);
+
     close(fd);
 
 out:
     conn_send_response(conn, res);
 
+    //fprintf(stderr, "CODE: %hu\n", response_get_code(res));
+
+}
+
+void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
+    flock(2, LOCK_EX);
+    if (req_id  == NULL) {
+        fprintf(stderr, "ITSA NULL\n");
+        fprintf(stderr, "AUDIT LOG: %s,%s,%hu,%s\n", oper, uri, status_code, "0");
+    } else {
+        fprintf(stderr, "AUDIT LOG: %s,%s,%hu,%s\n", oper, uri, status_code, req_id);
+    }
+    flock(2, LOCK_UN);
 }
