@@ -49,6 +49,11 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    if (port < 1 || port > 65535) {
+        fprintf(stderr, "Invalid Port\n");
+        return 1;
+    }
+
 
     signal(SIGPIPE, SIG_IGN);
     Listener_Socket sock;
