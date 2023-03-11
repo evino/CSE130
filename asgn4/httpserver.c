@@ -165,7 +165,7 @@ void handle_connection(int connfd) {
 void handle_get(conn_t *conn) {
 
     char *uri = conn_get_uri(conn);
-    debug("GET request not implemented. But, we want to get %s", uri);
+    debug("handling get request for %s", uri);
 
     // What are the steps in here?
 
@@ -188,6 +188,89 @@ void handle_get(conn_t *conn) {
 
     // 4. Send the file
     // (hint: checkout the conn_send_file function!)
+
+    const Response_t *res = NULL;
+    debug("handling put request for %s", uri);
+
+    // bool existed = access(uri, F_OK) == 0;
+    // debug("%s existed? %d", uri, existed);
+
+    int fd = open(uri, O_RDONLY);
+
+    struct stat fileCheck = {0};
+    fstat(fd, &fileCheck);
+    int fileSize = fileCheck.st_size;
+
+// int dir = 0;
+
+    if (fd < 0) {
+        debug("ERROR: %s: %d", uri, errno);
+        fprintf(stderr, "ERROR: %s: %d", uri, errno);
+        if (errno == EACCES) {
+            res = &RESPONSE_FORBIDDEN;
+            goto outBad;
+        } else if (errno == ENOENT) {
+            res = &RESPONSE_NOT_FOUND;
+            goto outBad;
+        } else {
+            res = &RESPONSE_INTERNAL_SERVER_ERROR;
+            goto outBad;
+        }
+    }
+
+    // CHECK TO MAKE SURE NOT DIRECTORY
+
+    // fprintf(stderr,"BEFORE\n");
+    // if (fileCheck.st_mode S_IFMT == S_IFDIR) { // File is a directory
+    //      fprintf(stderr,"AFTER\n");
+    //     res = &RESPONSE_FORBIDDEN;
+    //     fprintf(stderr,"AFTER\n");
+    //     goto outBad;
+    // }
+
+    fprintf(stderr,"BEFORE\n");
+    if (S_ISDIR(fileCheck.st_mode) != 0) { // File is a directory
+         fprintf(stderr,"AFTER\n");
+        res = &RESPONSE_FORBIDDEN;
+        fprintf(stderr,"AFTER\n");
+        goto outBad;
+    }
+
+
+
+    // switch (fileCheck.st_mode)
+
+
+
+
+
+
+    res = conn_recv_file(conn, fd);
+
+    if (res == NULL) {
+        res = &RESPONSE_OK;
+    }
+
+
+    // const Request_t *req = conn_get_request(conn);
+    // const char *oper = request_get_str(req);
+    // uint16_t statusCode = response_get_code(res);
+    // char *reqID = conn_get_header(conn, "Request-Id");
+
+    // audit(oper, uri, statusCode, reqID);
+
+    close(fd);
+
+outBad: {
+    conn_send_response(conn,res);
+    return;
+}
+    
+    fprintf(stderr, "TEEST\n");
+
+    conn_send_file(conn, fd, fileSize);
+    //conn_send_response(conn,res);
+
 
 }
 
@@ -265,9 +348,9 @@ void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
     flock(2, LOCK_EX);
     if (req_id  == NULL) {
         fprintf(stderr, "ITSA NULL\n");
-        fprintf(stderr, "AUDIT LOG: %s,/%s,%hu,%s\n", oper, uri, status_code, "0");
+        fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, "0");
     } else {
-        fprintf(stderr, "AUDIT LOG: %s,/%s,%hu,%s\n", oper, uri, status_code, req_id);
+        fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, req_id);
     }
     flock(2, LOCK_UN);
 }
