@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
         // handle_connection(connfd);
         //worker(queue);
 
-        printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
+        // printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
         // write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
         // close(connfd);  WORKER CAN CLOSE
     }
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 }
 
 void *worker(void *q) {
-    printf("In worker\n");
+    // printf("In worker\n");
     q = (queue_t *) q;
     while (1) {
         // printf("DB1\n");
@@ -139,21 +139,21 @@ void handle_connection(int connfd) {
         const char *oper = request_get_str(request);  // Operation
         // char *uri = conn_get_uri(conn);
 
-        fprintf(stderr, "IN NULL CASE\n");
+        // fprintf(stderr, "IN NULL CASE\n");
         audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED), conn_get_header(conn, "Request-Id"));
         
         // Original
         conn_send_response(conn, res);
-        dprintf(connfd, "db2\n");
+        // dprintf(connfd, "db2\n");
     } else {
         debug("%s", conn_str(conn));
         const Request_t *req = conn_get_request(conn);
         if (req == &REQUEST_GET) {
             handle_get(conn);
         } else if (req == &REQUEST_PUT) {
-            printf("IS PUT REQ\n");
+            // printf("IS PUT REQ\n");
             handle_put(conn);  // connfd is for DEBUG!!!!
-            dprintf(connfd, "db3\n");
+            // dprintf(connfd, "db3\n");
         } else {
             handle_unsupported(conn);
         }
@@ -197,13 +197,12 @@ void handle_get(conn_t *conn) {
 
     int fd = open(uri, O_RDONLY);
 
+    flock(fd, LOCK_SH);
+
     struct stat fileCheck = {0};
     stat(uri, &fileCheck);
     int fileSize = fileCheck.st_size;
 
-
-
-// int dir = 0;
 
     if (fd < 0) {
         debug("ERROR: %s: %d", uri, errno);
@@ -220,13 +219,7 @@ void handle_get(conn_t *conn) {
         }
     }
 
-    
 
-
-    // CHECK TO MAKE SURE NOT DIRECTORY
-
-    // fprintf(stderr,"BEFORE\n");
-    // if (fileCheck.st_mode S_IFMT == S_IFDIR) { // File is a directory
     if (S_ISDIR(fileCheck.st_mode) != 0) {
         //  fprintf(stderr,"AFTER\n");
         res = &RESPONSE_FORBIDDEN;
@@ -234,26 +227,13 @@ void handle_get(conn_t *conn) {
         goto outBad;
     }
 
-    fprintf(stderr,"BEFORE\n");
-
-
-    // res = conn_recv_file(conn, fd);  // THIS LINE
-    // fprintf(stderr, "segy\n");
+    // fprintf(stderr,"BEFORE\n");
 
 
     if (res == NULL) {
         res = &RESPONSE_OK;
        goto outGood;
     }
-
-
-    // const Request_t *req = conn_get_request(conn);
-    // const char *oper = request_get_str(req);
-
-
-
-
-    // audit(oper, uri, statusCode, reqID);
 
     close(fd);
 
@@ -263,19 +243,19 @@ outBad:
    
 outGood:
     if (res == &RESPONSE_OK) {
-        fprintf(stderr, "TEEST\n");
+        // fprintf(stderr, "TEEST\n");
         conn_send_file(conn, fd, fileSize);
-    //conn_send_response(conn,res);
     }
 
 
     uint16_t statusCode = response_get_code(res);
     const char *oper = "GET";
-    fprintf(stderr, "seggy\n");
+    // fprintf(stderr, "seggy\n");
     char *reqID = conn_get_header(conn, "Request-Id");
 
     audit(oper, uri, statusCode, reqID);
 
+    flock(fd, LOCK_UN);
     return;
 }
 
@@ -314,6 +294,9 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
 
     // Open the file..
     int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
+
+    flock(fd, LOCK_EX);
+
     if (fd < 0) {
         debug("%s: %d", uri, errno);
         if (errno == EACCES || errno == EISDIR || errno == ENOENT) {
@@ -347,6 +330,8 @@ out:
 
     //fprintf(stderr, "CODE: %hu\n", response_get_code(res));
 
+    flock(fd, LOCK_UN);
+    return;
 }
 
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
