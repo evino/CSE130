@@ -197,6 +197,10 @@ void handle_get(conn_t *conn) {
 
     int fd = open(uri, O_RDWR);
 
+    struct stat fileCheck = {0};
+    stat(uri, &fileCheck);
+    int fileSize = fileCheck.st_size;
+
 
 // int dir = 0;
 
@@ -205,20 +209,18 @@ void handle_get(conn_t *conn) {
         fprintf(stderr, "ERROR: %s: %d", uri, errno);
         if (errno == EACCES) {
             res = &RESPONSE_FORBIDDEN;
-            goto outBad;
+            goto out;
         } else if (errno == ENOENT) {
             res = &RESPONSE_NOT_FOUND;
-            goto outBad;
+            goto out;
         } else {
             res = &RESPONSE_INTERNAL_SERVER_ERROR;
-            goto outBad;
+            goto out;
         }
     }
 
     
-    struct stat fileCheck = {0};
-    stat(uri, &fileCheck);
-    int fileSize = fileCheck.st_size;
+
 
     // CHECK TO MAKE SURE NOT DIRECTORY
 
@@ -227,17 +229,17 @@ void handle_get(conn_t *conn) {
     //      fprintf(stderr,"AFTER\n");
     //     res = &RESPONSE_FORBIDDEN;
     //     fprintf(stderr,"AFTER\n");
-    //     goto outBad;
+    //     goto out;
     // }
 
     fprintf(stderr,"BEFORE\n");
     // SEGFAULTING HERE
-    // if (S_ISDIR(fileCheck.st_mode)) { // File is a directory
-    //      fprintf(stderr,"AFTER\n");
-    //     res = &RESPONSE_FORBIDDEN;
-    //     fprintf(stderr,"AFTER\n");
-    //     goto outBad;
-    // }
+    if (S_ISDIR(fileCheck.st_mode)) { // File is a directory
+         fprintf(stderr,"AFTER\n");
+        res = &RESPONSE_FORBIDDEN;
+        fprintf(stderr,"AFTER\n");
+        goto out;
+    }
 
 
 
@@ -253,6 +255,7 @@ void handle_get(conn_t *conn) {
 
     if (res == NULL) {
         res = &RESPONSE_OK;
+        goto outGood;
     }
 
 
@@ -265,17 +268,16 @@ void handle_get(conn_t *conn) {
 
     close(fd);
 
-outBad: {
+out:
     conn_send_response(conn,res);
     return;
-}
-    
+   
+outGood:
     fprintf(stderr, "TEEST\n");
-
     conn_send_file(conn, fd, fileSize);
     //conn_send_response(conn,res);
 
-
+    return;
 }
 
 void handle_unsupported(conn_t *conn) {
