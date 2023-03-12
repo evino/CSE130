@@ -46,10 +46,21 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    int thread_num = getopt(argc, argv, "t:");
+    if (thread_num == -1) {
+        thread_num = 4;
+    } else {
+        thread_num = atoi(optarg);
+    }
+    printf("db\n");
+    fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
+
+
+
     char *endptr = NULL;
-    size_t port = (size_t) strtoull(argv[1], &endptr, 10);
+    size_t port = (size_t) strtoull(argv[argc - 1], &endptr, 10);
     if (endptr && *endptr != '\0') {
-        warnx("invalid port number: %s", argv[1]);
+        warnx("invalid port number: %s", argv[argc - 1]);
         return EXIT_FAILURE;
     }
 
@@ -67,33 +78,20 @@ int main(int argc, char **argv) {
     // Add in optional arg
     //uintptr_t thread_num = 4; // By default
 
-    int thread_num;
-    // int t = 0;
-    // while ((thread_num = getopt(argc, argv, ":t")) != -1) {
-    //     switch(thread_num) {
-    //         case 't':
 
-    //     }
+    // fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
 
-
-    //     thread_num = t;
-    // } else {
-    //     thread_num = 4;
-    // }
-
-    thread_num = getopt(argc, argv, ":t:");
-
-    fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
-
-    uintptr_t threads = (uintptr_t) thread_num;
+    
 
     //queue_t *queue = queue_new(thread_num);
-    queue_t *queue = queue_new(threads);
-
+    
     assert(!(pthread_mutex_init(&file_mutex, NULL)));
 
+    uintptr_t threads = (uintptr_t) thread_num;
+    fprintf(stderr, "%lu threads\n", threads);
 
-    pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
+    queue_t *queue = queue_new(threads);
+    pthread_t *threadArr = malloc(sizeof(pthread_t) * threads);
 
     // for (uintptr_t t = 0; t < thread_num; t++) {
     for (uintptr_t i = 0; i < threads; i++) {
