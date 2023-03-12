@@ -65,18 +65,39 @@ int main(int argc, char **argv) {
 
 
     // Add in optional arg
-    uintptr_t thread_num = 4; // By default
-    queue_t *queue = queue_new(thread_num);
+    //uintptr_t thread_num = 4; // By default
 
+    int thread_num;
+    // int t = 0;
+    // while ((thread_num = getopt(argc, argv, ":t")) != -1) {
+    //     switch(thread_num) {
+    //         case 't':
+
+    //     }
+
+
+    //     thread_num = t;
+    // } else {
+    //     thread_num = 4;
+    // }
+
+    thread_num = getopt(argc, argv, ":t:");
+
+    fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
+
+    uintptr_t threads = (uintptr_t) thread_num;
+
+    //queue_t *queue = queue_new(thread_num);
+    queue_t *queue = queue_new(threads);
 
     assert(!(pthread_mutex_init(&file_mutex, NULL)));
 
 
-    //pthread_t threads[thread_num];
     pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
 
-    for (uintptr_t t = 0; t < thread_num; t++) {
-        pthread_create(&(threadArr[t]), NULL, worker, (void *) queue);                                                                                                                   
+    // for (uintptr_t t = 0; t < thread_num; t++) {
+    for (uintptr_t i = 0; i < threads; i++) {
+        pthread_create(&(threadArr[i]), NULL, worker, (void *) queue);                                                                                                                   
     }
 
     while (1) {
