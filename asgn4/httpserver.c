@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
         //worker(queue);
 
         printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
-        write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
+        // write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
         // close(connfd);  WORKER CAN CLOSE
     }
 
@@ -131,7 +131,7 @@ void handle_connection(int connfd) {
     char *uri = conn_get_uri(conn);
 
     
-    dprintf(connfd, "db1\n");
+    // dprintf(connfd, "db1\n");
 
 
     if (res != NULL) {
@@ -202,6 +202,7 @@ void handle_get(conn_t *conn) {
     int fileSize = fileCheck.st_size;
 
 
+
 // int dir = 0;
 
     if (fd < 0) {
@@ -209,13 +210,13 @@ void handle_get(conn_t *conn) {
         fprintf(stderr, "ERROR: %s: %d", uri, errno);
         if (errno == EACCES) {
             res = &RESPONSE_FORBIDDEN;
-            goto out;
+            goto outBad;
         } else if (errno == ENOENT) {
             res = &RESPONSE_NOT_FOUND;
-            goto out;
+            goto outBad;
         } else {
             res = &RESPONSE_INTERNAL_SERVER_ERROR;
-            goto out;
+            goto outBad;
         }
     }
 
@@ -224,59 +225,56 @@ void handle_get(conn_t *conn) {
 
     // CHECK TO MAKE SURE NOT DIRECTORY
 
-    fprintf(stderr,"BEFORE\n");
+    // fprintf(stderr,"BEFORE\n");
     // if (fileCheck.st_mode S_IFMT == S_IFDIR) { // File is a directory
     if (S_ISDIR(fileCheck.st_mode) != 0) {
-         fprintf(stderr,"AFTER\n");
+        //  fprintf(stderr,"AFTER\n");
         res = &RESPONSE_FORBIDDEN;
-        fprintf(stderr,"AFTER\n");
-        goto out;
+        // fprintf(stderr,"AFTER\n");
+        goto outBad;
     }
 
     fprintf(stderr,"BEFORE\n");
-    // SEGFAULTING HERE
-    if (S_ISDIR(fileCheck.st_mode)) { // File is a directory
-         fprintf(stderr,"AFTER\n");
-        res = &RESPONSE_FORBIDDEN;
-        fprintf(stderr,"AFTER\n");
-        goto out;
-    }
-
-
-
-    // switch (fileCheck.st_mode)
-
-
-
 
 
     // res = conn_recv_file(conn, fd);  // THIS LINE
-    fprintf(stderr, "segy\n");
+    // fprintf(stderr, "segy\n");
 
 
     if (res == NULL) {
         res = &RESPONSE_OK;
-        goto outGood;
+       goto outGood;
     }
 
 
     // const Request_t *req = conn_get_request(conn);
     // const char *oper = request_get_str(req);
-    // uint16_t statusCode = response_get_code(res);
-    // char *reqID = conn_get_header(conn, "Request-Id");
+
+
+
 
     // audit(oper, uri, statusCode, reqID);
 
     close(fd);
 
-out:
+outBad:
     conn_send_response(conn,res);
-    return;
+    // return;
    
 outGood:
-    fprintf(stderr, "TEEST\n");
-    conn_send_file(conn, fd, fileSize);
+    if (res == &RESPONSE_OK) {
+        fprintf(stderr, "TEEST\n");
+        conn_send_file(conn, fd, fileSize);
     //conn_send_response(conn,res);
+    }
+
+
+    uint16_t statusCode = response_get_code(res);
+    const char *oper = "GET";
+    fprintf(stderr, "seggy\n");
+    char *reqID = conn_get_header(conn, "Request-Id");
+
+    audit(oper, uri, statusCode, reqID);
 
     return;
 }
