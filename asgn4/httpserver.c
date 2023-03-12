@@ -232,12 +232,12 @@ void handle_get(conn_t *conn) {
 
     fprintf(stderr,"BEFORE\n");
     // SEGFAULTING HERE
-    if (S_ISDIR(fileCheck.st_mode)) { // File is a directory
-         fprintf(stderr,"AFTER\n");
-        res = &RESPONSE_FORBIDDEN;
-        fprintf(stderr,"AFTER\n");
-        goto outBad;
-    }
+    // if (S_ISDIR(fileCheck.st_mode)) { // File is a directory
+    //      fprintf(stderr,"AFTER\n");
+    //     res = &RESPONSE_FORBIDDEN;
+    //     fprintf(stderr,"AFTER\n");
+    //     goto outBad;
+    // }
 
 
 
@@ -247,8 +247,9 @@ void handle_get(conn_t *conn) {
 
 
 
+    // res = conn_recv_file(conn, fd);  // THIS LINE
+    fprintf(stderr, "segy\n");
 
-    res = conn_recv_file(conn, fd);
 
     if (res == NULL) {
         res = &RESPONSE_OK;
