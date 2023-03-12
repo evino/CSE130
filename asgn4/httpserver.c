@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include <sys/stat.h>
 #include <sys/file.h>
@@ -33,6 +34,9 @@ void handle_unsupported(conn_t *);
 void *worker(void *);
 
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id);
+
+
+pthread_mutex_t file_mutex;
 
 
 int main(int argc, char **argv) {
@@ -65,6 +69,9 @@ int main(int argc, char **argv) {
     queue_t *queue = queue_new(thread_num);
 
 
+    assert(!(pthread_mutex_init(&file_mutex, NULL)));
+
+
     //pthread_t threads[thread_num];
     pthread_t *threadArr = malloc(sizeof(pthread_t) * thread_num);
 
@@ -90,6 +97,8 @@ int main(int argc, char **argv) {
     queue_delete(&queue);
     free(threadArr);
     threadArr = NULL;
+
+    pthread_mutex_destroy(&file_mutex);
 
     return EXIT_SUCCESS;
 }
@@ -206,7 +215,7 @@ void handle_get(conn_t *conn) {
 
     if (fd < 0) {
         debug("ERROR: %s: %d", uri, errno);
-        fprintf(stderr, "ERROR: %s: %d", uri, errno);
+        // fprintf(stderr, "ERROR: %s: %d", uri, errno);
         if (errno == EACCES) {
             res = &RESPONSE_FORBIDDEN;
             goto outBad;
@@ -288,12 +297,16 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
     const Response_t *res = NULL;
     debug("handling put request for %s", uri);
 
+
+    pthread_mutex_lock(&file_mutex);
     // Check if file already exists before opening it.
     bool existed = access(uri, F_OK) == 0;
     debug("%s existed? %d", uri, existed);
 
     // Open the file..
     int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
+
+    pthread_mutex_unlock(&file_mutex);
 
     flock(fd, LOCK_EX);
 
@@ -337,7 +350,7 @@ out:
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
     flock(2, LOCK_EX);
     if (req_id  == NULL) {
-        fprintf(stderr, "ITSA NULL\n");
+        // fprintf(stderr, "ITSA NULL\n");
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, "0");
     } else {
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, req_id);
