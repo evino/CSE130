@@ -52,8 +52,8 @@ int main(int argc, char **argv) {
     } else {
         thread_num = atoi(optarg);
     }
-    printf("db\n");
-    fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
+    // printf("db\n");
+    // fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
 
 
 
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     assert(!(pthread_mutex_init(&file_mutex, NULL)));
 
     uintptr_t threads = (uintptr_t) thread_num;
-    fprintf(stderr, "%lu threads\n", threads);
+    // fprintf(stderr, "%lu threads\n", threads);
 
     queue_t *queue = queue_new(threads);
     pthread_t *threadArr = malloc(sizeof(pthread_t) * threads);
