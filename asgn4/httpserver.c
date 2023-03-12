@@ -195,7 +195,7 @@ void handle_get(conn_t *conn) {
     // bool existed = access(uri, F_OK) == 0;
     // debug("%s existed? %d", uri, existed);
 
-    int fd = open(uri, O_RDWR);
+    int fd = open(uri, O_RDONLY);
 
     struct stat fileCheck = {0};
     stat(uri, &fileCheck);
@@ -224,13 +224,14 @@ void handle_get(conn_t *conn) {
 
     // CHECK TO MAKE SURE NOT DIRECTORY
 
-    // fprintf(stderr,"BEFORE\n");
+    fprintf(stderr,"BEFORE\n");
     // if (fileCheck.st_mode S_IFMT == S_IFDIR) { // File is a directory
-    //      fprintf(stderr,"AFTER\n");
-    //     res = &RESPONSE_FORBIDDEN;
-    //     fprintf(stderr,"AFTER\n");
-    //     goto out;
-    // }
+    if (S_ISDIR(fileCheck.st_mode) != 0) {
+         fprintf(stderr,"AFTER\n");
+        res = &RESPONSE_FORBIDDEN;
+        fprintf(stderr,"AFTER\n");
+        goto out;
+    }
 
     fprintf(stderr,"BEFORE\n");
     // SEGFAULTING HERE
