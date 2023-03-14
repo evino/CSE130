@@ -35,9 +35,7 @@ void *worker(void *);
 
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id);
 
-
 pthread_mutex_t file_mutex;
-
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -55,8 +53,6 @@ int main(int argc, char **argv) {
     // printf("db\n");
     // fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
 
-
-
     char *endptr = NULL;
     size_t port = (size_t) strtoull(argv[argc - 1], &endptr, 10);
     if (endptr && *endptr != '\0') {
@@ -69,22 +65,17 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-
     signal(SIGPIPE, SIG_IGN);
     Listener_Socket sock;
     listener_init(&sock, port);
 
-
     // Add in optional arg
     //uintptr_t thread_num = 4; // By default
 
-
     // fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
 
-    
-
     //queue_t *queue = queue_new(thread_num);
-    
+
     assert(!(pthread_mutex_init(&file_mutex, NULL)));
 
     uintptr_t threads = (uintptr_t) thread_num;
@@ -95,7 +86,7 @@ int main(int argc, char **argv) {
 
     // for (uintptr_t t = 0; t < thread_num; t++) {
     for (uintptr_t i = 0; i < threads; i++) {
-        pthread_create(&(threadArr[i]), NULL, worker, (void *) queue);                                                                                                                   
+        pthread_create(&(threadArr[i]), NULL, worker, (void *) queue);
     }
 
     while (1) {
@@ -111,7 +102,6 @@ int main(int argc, char **argv) {
         // write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
         // close(connfd);  WORKER CAN CLOSE
     }
-
 
     queue_delete(&queue);
     free(threadArr);
@@ -129,7 +119,7 @@ void *worker(void *q) {
         // printf("DB1\n");
         void *connfd = NULL;
         queue_pop(q, (void *) &connfd);
-        
+
         handle_connection((uintptr_t) connfd);
         // printf("after handle\n");
 
@@ -138,9 +128,6 @@ void *worker(void *q) {
 
     return NULL;
 }
-
-
-
 
 void handle_connection(int connfd) {
 
@@ -158,18 +145,17 @@ void handle_connection(int connfd) {
 
     char *uri = conn_get_uri(conn);
 
-    
     // dprintf(connfd, "db1\n");
-
 
     if (res != NULL) {
         const Request_t *request = conn_get_request(conn);
-        const char *oper = request_get_str(request);  // Operation
+        const char *oper = request_get_str(request); // Operation
         // char *uri = conn_get_uri(conn);
 
         // fprintf(stderr, "IN NULL CASE\n");
-        audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED), conn_get_header(conn, "Request-Id"));
-        
+        audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED),
+            conn_get_header(conn, "Request-Id"));
+
         // Original
         conn_send_response(conn, res);
         // dprintf(connfd, "db2\n");
@@ -180,7 +166,7 @@ void handle_connection(int connfd) {
             handle_get(conn);
         } else if (req == &REQUEST_PUT) {
             // printf("IS PUT REQ\n");
-            handle_put(conn);  // connfd is for DEBUG!!!!
+            handle_put(conn); // connfd is for DEBUG!!!!
             // dprintf(connfd, "db3\n");
         } else {
             handle_unsupported(conn);
@@ -213,7 +199,6 @@ void handle_get(conn_t *conn) {
     // open, but are not valid.
     // (hint: checkout the macro "S_IFDIR", which you can use after you call fstat!)
 
-
     // 4. Send the file
     // (hint: checkout the conn_send_file function!)
 
@@ -227,10 +212,9 @@ void handle_get(conn_t *conn) {
 
     flock(fd, LOCK_SH);
 
-    struct stat fileCheck = {0};
+    struct stat fileCheck = { 0 };
     stat(uri, &fileCheck);
     int fileSize = fileCheck.st_size;
-
 
     if (fd < 0) {
         debug("ERROR: %s: %d", uri, errno);
@@ -247,7 +231,6 @@ void handle_get(conn_t *conn) {
         }
     }
 
-
     if (S_ISDIR(fileCheck.st_mode) != 0) {
         //  fprintf(stderr,"AFTER\n");
         res = &RESPONSE_FORBIDDEN;
@@ -257,24 +240,22 @@ void handle_get(conn_t *conn) {
 
     // fprintf(stderr,"BEFORE\n");
 
-
     if (res == NULL) {
         res = &RESPONSE_OK;
-       goto outGood;
+        goto outGood;
     }
 
     close(fd);
 
 outBad:
-    conn_send_response(conn,res);
+    conn_send_response(conn, res);
     // return;
-   
+
 outGood:
     if (res == &RESPONSE_OK) {
         // fprintf(stderr, "TEEST\n");
         conn_send_file(conn, fd, fileSize);
     }
-
 
     uint16_t statusCode = response_get_code(res);
     const char *oper = "GET";
@@ -290,7 +271,6 @@ outGood:
 void handle_unsupported(conn_t *conn) {
     debug("handling unsupported request");
 
-
     const Request_t *req = conn_get_request(conn);
 
     // send responses
@@ -299,27 +279,23 @@ void handle_unsupported(conn_t *conn) {
 
     // const Response_t *res = conn_parse(conn);
 
-
-    
     //uint16_t statusCode = response_get_code(res);
 
-    audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED), conn_get_header(conn, "Request-Id"));
-
+    audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED),
+        conn_get_header(conn, "Request-Id"));
 
     conn_send_response(conn, &RESPONSE_NOT_IMPLEMENTED);
 }
 
-void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
+void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
 
     pthread_mutex_lock(&file_mutex);
-
 
     char *uri = conn_get_uri(conn);
     char *reqID = conn_get_header(conn, "Request-Id");
 
     const Response_t *res = NULL;
     debug("handling put request for %s", uri);
-
 
     // Check if file already exists before opening it.
     bool existed = access(uri, F_OK) == 0;
@@ -377,7 +353,7 @@ out:
 
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
     flock(2, LOCK_EX);
-    if (req_id  == NULL) {
+    if (req_id == NULL) {
         // fprintf(stderr, "ITSA NULL\n");
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, "0");
     } else {
