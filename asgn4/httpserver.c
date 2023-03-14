@@ -311,13 +311,15 @@ void handle_unsupported(conn_t *conn) {
 
 void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
 
+    pthread_mutex_lock(&file_mutex);
+
+
     char *uri = conn_get_uri(conn);
 
     const Response_t *res = NULL;
     debug("handling put request for %s", uri);
 
 
-    pthread_mutex_lock(&file_mutex);
     // Check if file already exists before opening it.
     bool existed = access(uri, F_OK) == 0;
     debug("%s existed? %d", uri, existed);
@@ -325,9 +327,11 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
     // Open the file..
     int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
 
+    flock(fd, LOCK_EX);
+
     pthread_mutex_unlock(&file_mutex);
 
-    flock(fd, LOCK_EX);
+    // flock(fd, LOCK_EX);
 
     if (fd < 0) {
         debug("%s: %d", uri, errno);
