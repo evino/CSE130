@@ -315,6 +315,7 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
 
 
     char *uri = conn_get_uri(conn);
+    char *reqID = conn_get_header(conn, "Request-Id");
 
     const Response_t *res = NULL;
     debug("handling put request for %s", uri);
@@ -352,21 +353,25 @@ void handle_put(conn_t *conn) {  // connfd is for DEBUG!!!!
         res = &RESPONSE_CREATED;
     }
 
-    const Request_t *req = conn_get_request(conn);
-    const char *oper = request_get_str(req);
-    uint16_t statusCode = response_get_code(res);
-    char *reqID = conn_get_header(conn, "Request-Id");
+    // const Request_t *req = conn_get_request(conn);
+    // const char *oper = request_get_str(req);
+    // uint16_t statusCode = response_get_code(res);
+    // char *reqID = conn_get_header(conn, "Request-Id");
 
-    audit(oper, uri, statusCode, reqID);
+    // audit(oper, uri, statusCode, reqID);
 
-    close(fd);
+    // flock(fd, LOCK_UN);
+    // close(fd);
 
 out:
+    flock(fd, LOCK_UN);
+    close(fd);
+    audit("PUT", uri, response_get_code(res), reqID);
     conn_send_response(conn, res);
 
     //fprintf(stderr, "CODE: %hu\n", response_get_code(res));
 
-    flock(fd, LOCK_UN);
+    // flock(fd, LOCK_UN);
     return;
 }
 
