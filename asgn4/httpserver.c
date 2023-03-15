@@ -289,7 +289,7 @@ void handle_unsupported(conn_t *conn) {
 
 void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
 
-    pthread_mutex_lock(&file_mutex);
+    // pthread_mutex_lock(&file_mutex);
 
     char *uri = conn_get_uri(conn);
     char *reqID = conn_get_header(conn, "Request-Id");
@@ -302,7 +302,12 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     debug("%s existed? %d", uri, existed);
 
     // Open the file..
-    int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
+    // int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
+    int fd = open(uri, O_CREAT | O_WRONLY, 0600);
+
+    pthread_mutex_lock(&file_mutex);
+    
+    int trunc = ftruncate(fd, 0);
 
     flock(fd, LOCK_EX);
 
@@ -319,6 +324,11 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
             res = &RESPONSE_INTERNAL_SERVER_ERROR;
             goto out;
         }
+    }
+
+    if (trunc < 0) {
+        res = &RESPONSE_INTERNAL_SERVER_ERROR;
+        goto out;
     }
 
     res = conn_recv_file(conn, fd);
@@ -340,7 +350,7 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     // close(fd);
 
 out:
-    flock(fd, LOCK_UN);
+    // flock(fd, LOCK_UN);
     close(fd);
     audit("PUT", uri, response_get_code(res), reqID);
     conn_send_response(conn, res);
