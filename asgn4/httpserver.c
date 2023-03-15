@@ -303,11 +303,13 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
 
     // Open the file..
     // int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
-    int fd = open(uri, O_CREAT | O_WRONLY, 0600);
+    //int fd = open(uri, O_CREAT | O_WRONLY, 0600);
 
     pthread_mutex_lock(&file_mutex);
     
-    int trunc = ftruncate(fd, 0);
+    // int trunc = ftruncate(fd, 0);
+    int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
+
 
     flock(fd, LOCK_EX);
 
@@ -326,10 +328,10 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
         }
     }
 
-    if (trunc < 0) {
-        res = &RESPONSE_INTERNAL_SERVER_ERROR;
-        goto out;
-    }
+    // if (trunc < 0) {
+    //     res = &RESPONSE_INTERNAL_SERVER_ERROR;
+    //     goto out;
+    // }
 
     res = conn_recv_file(conn, fd);
 
