@@ -271,7 +271,7 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     }
 
 out:
-    // flock(fd, LOCK_UN);
+    flock(fd, LOCK_UN);
     close(fd);
     audit("PUT", uri, response_get_code(res), reqID);
     conn_send_response(conn, res);
@@ -279,11 +279,9 @@ out:
 }
 
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
-    flock(2, LOCK_EX);
     if (req_id == NULL) {
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, "0");
     } else {
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, req_id);
     }
-    flock(2, LOCK_UN);
 }
