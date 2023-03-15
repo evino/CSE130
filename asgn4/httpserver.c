@@ -306,10 +306,9 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     //int fd = open(uri, O_CREAT | O_WRONLY, 0600);
 
     pthread_mutex_lock(&file_mutex);
-    
+
     // int trunc = ftruncate(fd, 0);
     int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
-
 
     flock(fd, LOCK_EX);
 
