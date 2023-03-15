@@ -1,3 +1,7 @@
+// Evin Odisho
+// CSE-130 Assignment 4
+// Multi-threaded HTTP-Server
+// Built on top of:
 // Asgn 2: A simple HTTP server.
 // By: Eugene Chou
 //     Andrew Quinn
@@ -50,8 +54,6 @@ int main(int argc, char **argv) {
     } else {
         thread_num = atoi(optarg);
     }
-    // printf("db\n");
-    // fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
 
     char *endptr = NULL;
     size_t port = (size_t) strtoull(argv[argc - 1], &endptr, 10);
@@ -69,38 +71,20 @@ int main(int argc, char **argv) {
     Listener_Socket sock;
     listener_init(&sock, port);
 
-    // Add in optional arg
-    //uintptr_t thread_num = 4; // By default
-
-    // fprintf(stderr, "THREAD COUNT: %d\n", thread_num);
-
-    //queue_t *queue = queue_new(thread_num);
-
     assert(!(pthread_mutex_init(&file_mutex, NULL)));
 
     uintptr_t threads = (uintptr_t) thread_num;
-    // fprintf(stderr, "%lu threads\n", threads);
 
     queue_t *queue = queue_new(threads);
     pthread_t *threadArr = malloc(sizeof(pthread_t) * threads);
 
-    // for (uintptr_t t = 0; t < thread_num; t++) {
     for (uintptr_t i = 0; i < threads; i++) {
         pthread_create(&(threadArr[i]), NULL, worker, (void *) queue);
     }
 
     while (1) {
         uintptr_t connfd = listener_accept(&sock);
-
-        // MIGHT NEED TO ADD ERROR CHECK FOR VALID CONN
         queue_push(queue, (void *) connfd);
-        // printf("GOing to call worker()\n");
-        // handle_connection(connfd);
-        //worker(queue);
-
-        // printf("SERVER DB: CLOSING CLIENT\n"); // DEBUG
-        // write(connfd, "About to close connection\n", strlen("About to close connection\n"));  // DEBUG
-        // close(connfd);  WORKER CAN CLOSE
     }
 
     queue_delete(&queue);
@@ -113,61 +97,35 @@ int main(int argc, char **argv) {
 }
 
 void *worker(void *q) {
-    // printf("In worker\n");
     q = (queue_t *) q;
     while (1) {
-        // printf("DB1\n");
         void *connfd = NULL;
         queue_pop(q, (void *) &connfd);
-
         handle_connection((uintptr_t) connfd);
-        // printf("after handle\n");
-
         close((uintptr_t) connfd);
     }
-
     return NULL;
 }
 
 void handle_connection(int connfd) {
 
     conn_t *conn = conn_new(connfd);
-
     const Response_t *res = conn_parse(conn);
-
-    // const Request_t *request = conn_get_request(conn);
-    // const char *oper = request_get_str(req);  // Operation
-
-    // flock(2, LOCK_EX);
-    //fprintf(stderr, "DEBUG: %s, %s, %hu\r\n", oper, conn_get_uri(conn), response_get_code(res));
-    // fprintf(stderr, "DEBUG: %s\n", conn_get_header(conn, "Request-Id"));
-    // flock(2, LOCK_UN);
-
     char *uri = conn_get_uri(conn);
-
-    // dprintf(connfd, "db1\n");
 
     if (res != NULL) {
         const Request_t *request = conn_get_request(conn);
         const char *oper = request_get_str(request); // Operation
-        // char *uri = conn_get_uri(conn);
-
-        // fprintf(stderr, "IN NULL CASE\n");
         audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED),
             conn_get_header(conn, "Request-Id"));
-
-        // Original
         conn_send_response(conn, res);
-        // dprintf(connfd, "db2\n");
     } else {
         debug("%s", conn_str(conn));
         const Request_t *req = conn_get_request(conn);
         if (req == &REQUEST_GET) {
             handle_get(conn);
         } else if (req == &REQUEST_PUT) {
-            // printf("IS PUT REQ\n");
-            handle_put(conn); // connfd is for DEBUG!!!!
-            // dprintf(connfd, "db3\n");
+            handle_put(conn);
         } else {
             handle_unsupported(conn);
         }
@@ -218,7 +176,7 @@ void handle_get(conn_t *conn) {
 
     if (fd < 0) {
         debug("ERROR: %s: %d", uri, errno);
-        // fprintf(stderr, "ERROR: %s: %d", uri, errno);
+
         if (errno == EACCES) {
             res = &RESPONSE_FORBIDDEN;
             goto outBad;
@@ -232,13 +190,9 @@ void handle_get(conn_t *conn) {
     }
 
     if (S_ISDIR(fileCheck.st_mode) != 0) {
-        //  fprintf(stderr,"AFTER\n");
         res = &RESPONSE_FORBIDDEN;
-        // fprintf(stderr,"AFTER\n");
         goto outBad;
     }
-
-    // fprintf(stderr,"BEFORE\n");
 
     if (res == NULL) {
         res = &RESPONSE_OK;
@@ -249,17 +203,14 @@ void handle_get(conn_t *conn) {
 
 outBad:
     conn_send_response(conn, res);
-    // return;
 
 outGood:
     if (res == &RESPONSE_OK) {
-        // fprintf(stderr, "TEEST\n");
         conn_send_file(conn, fd, fileSize);
     }
 
     uint16_t statusCode = response_get_code(res);
     const char *oper = "GET";
-    // fprintf(stderr, "seggy\n");
     char *reqID = conn_get_header(conn, "Request-Id");
 
     audit(oper, uri, statusCode, reqID);
@@ -277,10 +228,6 @@ void handle_unsupported(conn_t *conn) {
     char *uri = conn_get_uri(conn);
     const char *oper = request_get_str(req);
 
-    // const Response_t *res = conn_parse(conn);
-
-    //uint16_t statusCode = response_get_code(res);
-
     audit(oper, uri, response_get_code(&RESPONSE_NOT_IMPLEMENTED),
         conn_get_header(conn, "Request-Id"));
 
@@ -288,9 +235,6 @@ void handle_unsupported(conn_t *conn) {
 }
 
 void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
-
-    // pthread_mutex_lock(&file_mutex);
-
     char *uri = conn_get_uri(conn);
     char *reqID = conn_get_header(conn, "Request-Id");
 
@@ -301,20 +245,11 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     bool existed = access(uri, F_OK) == 0;
     debug("%s existed? %d", uri, existed);
 
-    // Open the file..
-    // int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
-    //int fd = open(uri, O_CREAT | O_WRONLY, 0600);
-
+    // Ensuring file truncation is atomic
     pthread_mutex_lock(&file_mutex);
-
-    // int trunc = ftruncate(fd, 0);
     int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
-
     flock(fd, LOCK_EX);
-
     pthread_mutex_unlock(&file_mutex);
-
-    // flock(fd, LOCK_EX);
 
     if (fd < 0) {
         debug("%s: %d", uri, errno);
@@ -327,11 +262,6 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
         }
     }
 
-    // if (trunc < 0) {
-    //     res = &RESPONSE_INTERNAL_SERVER_ERROR;
-    //     goto out;
-    // }
-
     res = conn_recv_file(conn, fd);
 
     if (res == NULL && existed) {
@@ -340,32 +270,17 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
         res = &RESPONSE_CREATED;
     }
 
-    // const Request_t *req = conn_get_request(conn);
-    // const char *oper = request_get_str(req);
-    // uint16_t statusCode = response_get_code(res);
-    // char *reqID = conn_get_header(conn, "Request-Id");
-
-    // audit(oper, uri, statusCode, reqID);
-
-    // flock(fd, LOCK_UN);
-    // close(fd);
-
 out:
     // flock(fd, LOCK_UN);
     close(fd);
     audit("PUT", uri, response_get_code(res), reqID);
     conn_send_response(conn, res);
-
-    //fprintf(stderr, "CODE: %hu\n", response_get_code(res));
-
-    // flock(fd, LOCK_UN);
     return;
 }
 
 void audit(const char *oper, char *uri, uint16_t status_code, char *req_id) {
     flock(2, LOCK_EX);
     if (req_id == NULL) {
-        // fprintf(stderr, "ITSA NULL\n");
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, "0");
     } else {
         fprintf(stderr, "%s,/%s,%hu,%s\n", oper, uri, status_code, req_id);
