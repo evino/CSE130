@@ -166,7 +166,6 @@ void handle_get(conn_t *conn) {
     // bool existed = access(uri, F_OK) == 0;
     // debug("%s existed? %d", uri, existed);
 
-
     // Lock the mutex to ensure only
     // one file can be opened at a time.
     pthread_mutex_lock(&file_mutex);
@@ -194,7 +193,6 @@ void handle_get(conn_t *conn) {
         }
     }
 
-
     if (S_ISDIR(fileCheck.st_mode) != 0) {
         res = &RESPONSE_FORBIDDEN;
         goto outBad;
@@ -204,8 +202,6 @@ void handle_get(conn_t *conn) {
         res = &RESPONSE_OK;
         goto outGood;
     }
-
-    
 
 outBad:
     conn_send_response(conn, res);
@@ -221,7 +217,6 @@ outGood:
 
     audit(oper, uri, statusCode, reqID);
 
-    
     flock(fd, LOCK_UN);
     close(fd);
     return;
@@ -268,9 +263,6 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
         ftrunc = ftruncate(fd, 0);
     }
 
-   
-
-
     if (fd < 0) {
         debug("%s: %d", uri, errno);
         if (errno == EACCES || errno == EISDIR || errno == ENOENT) {
@@ -282,7 +274,7 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
         }
     }
 
-    if(ftrunc < 0) {
+    if (ftrunc < 0) {
         res = &RESPONSE_INTERNAL_SERVER_ERROR;
         goto out;
     }
@@ -300,7 +292,7 @@ out:
     conn_send_response(conn, res);
     flock(fd, LOCK_UN);
     close(fd);
-    
+
     return;
 }
 
