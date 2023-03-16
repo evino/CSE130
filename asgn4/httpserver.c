@@ -166,9 +166,11 @@ void handle_get(conn_t *conn) {
     // bool existed = access(uri, F_OK) == 0;
     // debug("%s existed? %d", uri, existed);
 
+    pthread_mutex_lock(&file_mutex);
     int fd = open(uri, O_RDONLY);
 
     flock(fd, LOCK_SH);
+    pthread_mutex_unlock(&file_mutex);
 
     struct stat fileCheck = { 0 };
     stat(uri, &fileCheck);
@@ -189,6 +191,7 @@ void handle_get(conn_t *conn) {
         }
     }
 
+
     if (S_ISDIR(fileCheck.st_mode) != 0) {
         res = &RESPONSE_FORBIDDEN;
         goto outBad;
@@ -199,7 +202,7 @@ void handle_get(conn_t *conn) {
         goto outGood;
     }
 
-    close(fd);
+    
 
 outBad:
     conn_send_response(conn, res);
@@ -215,7 +218,9 @@ outGood:
 
     audit(oper, uri, statusCode, reqID);
 
+    
     flock(fd, LOCK_UN);
+    close(fd);
     return;
 }
 
@@ -247,9 +252,18 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
 
     // Ensuring file truncation is atomic
     pthread_mutex_lock(&file_mutex);
-    int fd = open(uri, O_CREAT | O_TRUNC | O_WRONLY, 0600);
+    int fd = open(uri, O_CREAT | O_WRONLY, 0600);
     flock(fd, LOCK_EX);
+
     pthread_mutex_unlock(&file_mutex);
+
+    int ftrunc = 0;
+    if (existed) {
+        ftrunc = ftruncate(fd, 0);
+    }
+
+   
+
 
     if (fd < 0) {
         debug("%s: %d", uri, errno);
@@ -262,6 +276,11 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
         }
     }
 
+    if(ftrunc < 0) {
+        res = &RESPONSE_INTERNAL_SERVER_ERROR;
+        goto out;
+    }
+
     res = conn_recv_file(conn, fd);
 
     if (res == NULL && existed) {
@@ -271,10 +290,11 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     }
 
 out:
-    flock(fd, LOCK_UN);
-    close(fd);
     audit("PUT", uri, response_get_code(res), reqID);
     conn_send_response(conn, res);
+    flock(fd, LOCK_UN);
+    close(fd);
+    
     return;
 }
 
