@@ -166,6 +166,9 @@ void handle_get(conn_t *conn) {
     // bool existed = access(uri, F_OK) == 0;
     // debug("%s existed? %d", uri, existed);
 
+
+    // Lock the mutex to ensure only
+    // one file can be opened at a time.
     pthread_mutex_lock(&file_mutex);
     int fd = open(uri, O_RDONLY);
 
@@ -250,7 +253,10 @@ void handle_put(conn_t *conn) { // connfd is for DEBUG!!!!
     bool existed = access(uri, F_OK) == 0;
     debug("%s existed? %d", uri, existed);
 
-    // Ensuring file truncation is atomic
+    // Mutex is locked so only one file
+    // can be opened at a time, and truncate
+    // happens only after exclusive lock is
+    // placed on it to ensure it's atomic.
     pthread_mutex_lock(&file_mutex);
     int fd = open(uri, O_CREAT | O_WRONLY, 0600);
     flock(fd, LOCK_EX);
