@@ -3,22 +3,28 @@
 
 #include <stdbool.h>
 
-// Make private
-// typedef struct node node_t;
-
-//node_t *node_new(void *elem);
-
-
 typedef struct list list_t;
 
-// Create a new list to hold history of
-// elements in a cache.
+// Create a new list
 list_t *list_new();
 
-void list_push(list_t *l, void *elem);
+// Push an element to a list
+void list_push(list_t *, void *);
 
-void list_delete(list_t *l);
+// Delete/free list
+void list_delete(list_t *);
 
-bool list_search(list_t *l, void *elem);
+// Return true if list contains specific
+// element. Otherwise return false.
+bool list_contains(list_t *, void *);
+
+// Move cursor to front node of list.
+void list_front(list_t *);
+
+// Move current node in list to next node.
+void list_next(list_t *);
+
+// Delete head node of list.
+void delete_head(list_t *);
 
 #endif
