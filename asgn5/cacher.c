@@ -35,6 +35,9 @@ int main(int argc, char **argv) {
             elem = (void *) buffer;
             fifo_push(cache, elem);
         } while(bytes_read > 0);
+        char d = 'd';
+        bool in = fifo_search(cache, (void *) &d);      
+        fprintf(stderr, "%d\n", in);
         // do {
         //     bytes_read = fscanf(stdin, "%c", &c);
         //     elem = (void *) &c;
