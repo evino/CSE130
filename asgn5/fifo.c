@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "fifo.h"
 #include "list.h"
@@ -23,19 +24,17 @@ fifo_t *fifo_new(int size) {
     return cache;
 }
 
-void fifo_push(fifo_t *cache, void *elem) {
-    if (cache->count == cache->fifo_cache->size) {  // Eviction needs to happen
-        fprintf(stdout, "MISS\n";)
+void fifo_push(fifo_t *f, void *elem) {
+    //if (f->count == (f->fifo_cache)->size) {  // Eviction needs to happen
+    if (f->count == queue_size(f->fifo_cache)) {
+        fprintf(stdout, "MISS\n");
     }
-    cache->count++;
-    queue_push(cache->fifo_cache, elem);
-    list_push(cache->fifo_hist, elem);
+    f->count++;
+    queue_push(f->fifo_cache, elem);
+    list_push(f->fifo_hist, elem);
 }
 
 
 bool fifo_search(fifo_t *f, void *target) {
-    for (int i = 0; i < f->count; i++) {
-        if // Need to serach queue here instead
-        
-    }
+    return (queue_search(f->fifo_cache, target));
 }
