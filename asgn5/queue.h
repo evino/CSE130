@@ -64,3 +64,6 @@ int queue_size(queue_t *q);
 
 // Returns number of elements in queue
 int queue_count(queue_t *q);
+
+// Search for target element in queue
+bool queue_search(queue_t *q, void *target);

@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <semaphore.h>
 
+#include <stdio.h>
+
 #include "queue.h"
 
 struct queue {
@@ -124,4 +126,13 @@ int queue_size(queue_t *q ) {
 
 int queue_count(queue_t *q) {
     return q->count;
+}
+
+bool queue_search(queue_t *q, void *target) {
+    for (int i = 0; i < q->size; i++) {
+        if ((q->arr[i]) == target) {
+            return true;
+        }
+    }
+    return false;
 }
