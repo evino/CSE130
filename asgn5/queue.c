@@ -117,3 +117,11 @@ bool queue_pop(queue_t *q, void **elem) {
 
     return true;
 }
+
+int queue_size(queue_t *q ) {
+    return q->size;
+}
+
+int queue_count(queue_t *q) {
+    return q->count;
+}

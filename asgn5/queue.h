@@ -58,3 +58,9 @@ bool queue_push(queue_t *q, void *elem);
  *          should succeed unless the q parameter is NULL.
  */
 bool queue_pop(queue_t *q, void **elem);
+
+// Returns size of queue
+int queue_size(queue_t *q);
+
+// Returns number of elements in queue
+int queue_count(queue_t *q);
