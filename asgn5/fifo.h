@@ -12,7 +12,7 @@ fifo_t *fifo_new(int size);
 // memory associated with it
 void fifo_delete(fifo_t **f);
 
-bool fifo_push(fifo_t *f);
+void fifo_push(fifo_t *f, void *elem);
 
 // Print out miss type, and update miss count
 void fifo_miss(fifo_t *f);
