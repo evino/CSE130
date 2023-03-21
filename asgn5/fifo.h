@@ -17,5 +17,7 @@ void fifo_push(fifo_t *f, void *elem);
 // Print out miss type, and update miss count
 void fifo_miss(fifo_t *f, void *target);
 
+int fifo_size(fifo_t *f);
+
 // Search for target element in fifo cache
 bool fifo_search(fifo_t *f, void *target);
