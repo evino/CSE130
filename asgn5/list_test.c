@@ -11,7 +11,6 @@ int main() {
     list_push(myList, (void *) x);
     list_push(myList, (void *) y);
     list_push(myList, (void *) c);
-    
 
     bool contain = list_contains(myList, (void *) c);
     if (contain == true) {
@@ -19,4 +18,3 @@ int main() {
     }
     return 1;
 }
-

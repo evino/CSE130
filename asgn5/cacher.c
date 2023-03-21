@@ -8,16 +8,13 @@
 
 #define BUF_SIZE 4096
 
-
-
-
 int main(int argc, char **argv) {
     if (argc < 2 || argc > 3) {
         fprintf(stderr, "Invalid arguments\n");
         return 1;
     }
     uintptr_t cache_size = atol(argv[1]);
-    printf("Cache size: %lu\n", cache_size);  // DB
+    printf("Cache size: %lu\n", cache_size); // DB
     int cache_policy = 0; // 0 is default for fifo
     //void *elem = malloc(8 * sizeof(void *));
 
@@ -40,13 +37,13 @@ int main(int argc, char **argv) {
         uintptr_t x = 78;
         uintptr_t mid = 65;
         uintptr_t y = 99;
-        fifo_push(cache, (void *)x);
+        fifo_push(cache, (void *) x);
         fifo_push(cache, (void *) mid);
-        fifo_push(cache, (void *)y);
+        fifo_push(cache, (void *) y);
 
         printf("Size of cache is %d \n", fifo_size(cache));
         uintptr_t target = 99;
-        bool in = fifo_search(cache, (void *)target);
+        bool in = fifo_search(cache, (void *) target);
         fprintf(stderr, "%d\n", in);
         // do {
         //     bytes_read = fscanf(stdin, "%c", &c);
@@ -54,14 +51,13 @@ int main(int argc, char **argv) {
         //     fifo_push(cache, elem);
 
         // } while (bytes_read != EOF);
-        
+
         // do {
-            
+
         //     bytes_read = fread((void *) elem, sizeof(void *), 8, 0);
         //     printf("DB\n");
         // } while (bytes_read > 0);
     }
-
 
     return 0;
 }

@@ -34,13 +34,11 @@ queue_t *queue_new(int size) {
 
     q->arr = malloc(size * sizeof(void *));
 
-
     return q;
 }
 
 void queue_delete(queue_t **q) {
     assert(q != NULL || *q != NULL);
-
 
     free((*q)->arr);
     free(*q);
@@ -53,8 +51,6 @@ bool queue_push(queue_t *q, void *elem) {
     if (q == NULL) {
         return false;
     }
-
-    
 
     if (q->count == q->size) {
         return false;
@@ -72,7 +68,6 @@ bool queue_push(queue_t *q, void *elem) {
     // POP() doesn't result in weird behavoir in the count.
     q->count += 1;
 
-
     return true;
 }
 
@@ -80,8 +75,6 @@ bool queue_pop(queue_t *q, void **elem) {
     if (q == NULL) {
         return false;
     }
-
-
 
     if (q->count == 0) {
         return false;
@@ -97,7 +90,7 @@ bool queue_pop(queue_t *q, void **elem) {
     return true;
 }
 
-int queue_size(queue_t *q ) {
+int queue_size(queue_t *q) {
     return q->size;
 }
 
@@ -116,7 +109,7 @@ bool queue_search(queue_t *q, void *target) {
         fprintf(stderr, "%lu @ index %d\n", (uintptr_t) q->arr[i], i);
     }
 
-    if ((uintptr_t) target == 1) {  // TO SILENCE WARNING
+    if ((uintptr_t) target == 1) { // TO SILENCE WARNING
         return true;
     }
 
