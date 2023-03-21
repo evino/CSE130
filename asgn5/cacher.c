@@ -8,7 +8,7 @@
 
 #define BUF_SIZE 4096
 
-char buffer[BUF_SIZE];
+
 
 
 int main(int argc, char **argv) {
@@ -25,18 +25,28 @@ int main(int argc, char **argv) {
 
         fifo_t *cache = fifo_new(cache_size);
 
-        void *elem = NULL;
+        // void *elem = NULL;
         // char c = '\0';
 
-        int bytes_read = 0;
-        do {
-            bytes_read = read(0, buffer, 8);
-            printf("%d\n", bytes_read);
-            elem = (void *) buffer;
-            fifo_push(cache, elem);
-        } while(bytes_read > 0);
-        char d = 'd';
-        bool in = fifo_search(cache, (void *) &d);      
+        // int bytes_read = 0;
+        //do {
+        //     bytes_read = read(0, buf, 8);
+        //     // printf("%d\n", bytes_read);
+        //     elem = buf;
+        //     // printf("%s\n", buffer);
+        //     fifo_push(cache, elem);
+        //     fprintf(stderr, "pushed db\n");
+        // } while(bytes_read > 0);
+        uintptr_t x = 78;
+        uintptr_t mid = 65;
+        uintptr_t y = 99;
+        fifo_push(cache, (void *)x);
+        fifo_push(cache, (void *) mid);
+        fifo_push(cache, (void *)y);
+
+        printf("Size of cache is %d \n", fifo_size(cache));
+        uintptr_t target = 99;
+        bool in = fifo_search(cache, (void *)target);
         fprintf(stderr, "%d\n", in);
         // do {
         //     bytes_read = fscanf(stdin, "%c", &c);
