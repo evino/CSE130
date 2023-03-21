@@ -12,4 +12,7 @@ list_test: list_test.o list.o
 
 clean:
 	rm -f list_test list_test.o list.o cacher cacher.o fifo.o queue.o
+
+format:
+	clang-format -i -style=file *.c *.h
 	
