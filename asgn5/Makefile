@@ -1,6 +1,8 @@
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -Wpedantic
 
+all: cacher
+
 cacher: cacher.o fifo.o list.o queue.o
 	$(CC) $(CFLAGS) -o cacher cacher.o list.o fifo.o queue.o
 
