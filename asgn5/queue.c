@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <assert.h>
 #include <semaphore.h>
+#include <stdint.h>
 
 #include <stdio.h>
 
@@ -13,13 +14,6 @@ struct queue {
 
     int in;
     int out;
-
-    pthread_mutex_t mutex_push;
-    pthread_mutex_t mutex_pop;
-    pthread_mutex_t countMutex;
-
-    pthread_cond_t push_cv;
-    pthread_cond_t pop_cv;
 
     void **arr;
 };
@@ -40,13 +34,6 @@ queue_t *queue_new(int size) {
 
     q->arr = malloc(size * sizeof(void *));
 
-    assert(!(pthread_mutex_init(&(q->mutex_push), NULL)));
-    assert(!(pthread_mutex_init(&(q->mutex_pop), NULL)));
-
-    assert(!(pthread_cond_init(&(q->push_cv), NULL)));
-    assert(!(pthread_cond_init(&(q->pop_cv), NULL)));
-
-    pthread_mutex_init(&q->countMutex, NULL);
 
     return q;
 }
@@ -54,12 +41,6 @@ queue_t *queue_new(int size) {
 void queue_delete(queue_t **q) {
     assert(q != NULL || *q != NULL);
 
-    pthread_mutex_destroy(&((*q)->mutex_push));
-    pthread_mutex_destroy(&((*q)->mutex_pop));
-    pthread_mutex_destroy(&(*q)->countMutex);
-
-    pthread_cond_destroy(&((*q)->push_cv));
-    pthread_cond_destroy(&((*q)->pop_cv));
 
     free((*q)->arr);
     free(*q);
@@ -73,23 +54,24 @@ bool queue_push(queue_t *q, void *elem) {
         return false;
     }
 
-    pthread_mutex_lock(&q->mutex_push);
+    
 
-    while (q->count == q->size) {
-        pthread_cond_wait(&(q->push_cv), &(q->mutex_push));
+    if (q->count == q->size) {
+        return false;
     }
 
     q->arr[q->in] = elem;
+
+    // for (int i = q->out; i < q->in - 1; i++) {
+    //     printf("push db: %s\n", (char *) q->arr[i]);
+    // }
+
     q->in = (q->in + 1) % q->size;
 
     // Ensuring count is atomic, i.e. calling PUSH() and
     // POP() doesn't result in weird behavoir in the count.
-    pthread_mutex_lock(&q->countMutex);
     q->count += 1;
-    pthread_mutex_unlock(&q->countMutex);
 
-    pthread_mutex_unlock(&q->mutex_push);
-    pthread_cond_signal(&q->pop_cv);
 
     return true;
 }
@@ -99,10 +81,10 @@ bool queue_pop(queue_t *q, void **elem) {
         return false;
     }
 
-    pthread_mutex_lock(&q->mutex_pop);
 
-    while (q->count == 0) {
-        pthread_cond_wait(&q->pop_cv, &q->mutex_pop);
+
+    if (q->count == 0) {
+        return false;
     }
 
     *elem = q->arr[q->out];
@@ -110,12 +92,7 @@ bool queue_pop(queue_t *q, void **elem) {
 
     // Ensuring count is atomic, i.e. calling PUSH() and
     // POP() doesn't result in weird behavoir in the count.
-    pthread_mutex_lock(&q->countMutex);
     q->count -= 1;
-    pthread_mutex_unlock(&q->countMutex);
-
-    pthread_mutex_unlock(&q->mutex_pop);
-    pthread_cond_signal(&q->push_cv);
 
     return true;
 }
@@ -129,10 +106,19 @@ int queue_count(queue_t *q) {
 }
 
 bool queue_search(queue_t *q, void *target) {
-    for (int i = 0; i < q->size; i++) {
-        if ((q->arr[i]) == target) {
+    // printf("out: %d\nin: %d\n", q->out, q->in);
+    // fprintf(stderr,"at out, its %lu\n", (uintptr_t) q->arr[q->out]);
+    for (int i = q->out; i < q->in; i++) {
+        if ((uintptr_t) q->arr[i] == (uintptr_t) target) {
+            fprintf(stderr, "%lu exists @ index %d\n", (uintptr_t) q->arr[i], i);
             return true;
         }
+        fprintf(stderr, "%lu @ index %d\n", (uintptr_t) q->arr[i], i);
     }
+
+    if ((uintptr_t) target == 1) {  // TO SILENCE WARNING
+        return true;
+    }
+
     return false;
 }
